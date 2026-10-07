@@ -12,25 +12,22 @@
 
     <meta
         name="theme-color"
-        content="#16070c"
+        content="#f4f0e8"
     >
 
     <meta
         name="description"
-        content="PRSN — Private digital space."
+        content="PRSN — Five friends. One private corner."
     >
 
-    <title>PRSN — Private Digital Society</title>
+    <title>PRSN — The Chaos Room</title>
 
 
     <!-- =====================================================
          FONTS
     ====================================================== -->
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link
         rel="preconnect"
@@ -39,7 +36,7 @@
     >
 
     <link
-        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
@@ -60,149 +57,115 @@
 
 
 <!-- =========================================================
-     CUSTOM CURSOR / LIGHTING
+     GLOBAL BACKGROUND
+========================================================= -->
+
+<div class="global-bg" aria-hidden="true">
+
+    <div class="bg-grid"></div>
+
+    <div class="blob blob-blue"></div>
+
+    <div class="blob blob-orange"></div>
+
+    <div class="blob blob-red"></div>
+
+    <div class="blob blob-lime"></div>
+
+</div>
+
+
+
+<!-- =========================================================
+     CURSOR LIGHT
 ========================================================= -->
 
 <div
     id="cursorGlow"
     class="cursor-glow"
+    aria-hidden="true"
 ></div>
 
 
-<!-- =========================================================
-     CINEMATIC BACKGROUND
-========================================================= -->
-
-<div class="world-background">
-
-    <div class="noise-layer"></div>
-
-    <div class="vignette"></div>
-
-    <div class="mesh mesh-one"></div>
-    <div class="mesh mesh-two"></div>
-    <div class="mesh mesh-three"></div>
-
-    <div class="burgundy-glow glow-one"></div>
-    <div class="burgundy-glow glow-two"></div>
-
-    <div class="perspective-grid"></div>
-
-    <div class="light-beam beam-one"></div>
-    <div class="light-beam beam-two"></div>
-
-</div>
-
 
 <!-- =========================================================
-     GLOBAL DECORATION
-========================================================= -->
-
-<div class="global-frame">
-
-    <div class="frame-corner frame-tl"></div>
-    <div class="frame-corner frame-tr"></div>
-    <div class="frame-corner frame-bl"></div>
-    <div class="frame-corner frame-br"></div>
-
-</div>
-
-
-<!-- =========================================================
-     AUDIO
-========================================================= -->
-
-<audio
-    id="bgMusic"
-    loop
-    preload="metadata"
->
-
-    <source
-        src="song.mp3"
-        type="audio/mpeg"
-    >
-
-</audio>
-
-
-<audio
-    id="chatMusic"
-    loop
-    preload="metadata"
->
-
-    <source
-        src="song3.mp3.mp3"
-        type="audio/mpeg"
-    >
-
-    <source
-        src="song2.mp3"
-        type="audio/mpeg"
-    >
-
-</audio>
-
-
-<!-- =========================================================
-     ENTRY / IDENTITY SCREEN
+     OPENING / CHAOS ROOM INTRO
 ========================================================= -->
 
 <section
-    id="nameScreen"
-    class="screen entry-screen active"
+    id="introScreen"
+    class="intro-screen active"
 >
 
 
-    <!-- TOP NAV -->
+    <!-- NAV -->
 
-    <nav class="entry-nav">
+    <header class="intro-nav">
 
-        <div class="nav-brand">
 
-            <div class="nav-brand-mark">
+        <a
+            href="#"
+            class="brand"
+            aria-label="PRSN"
+        >
+
+            <span class="brand-mark">
                 P
-            </div>
+            </span>
 
-            <div class="nav-brand-text">
+
+            <span class="brand-copy">
 
                 <strong>
                     PRSN
                 </strong>
 
-                <span>
-                    PRIVATE NETWORK
-                </span>
+                <small>
+                    PRIVATE CORNER
+                </small>
 
-            </div>
+            </span>
+
+        </a>
+
+
+
+        <div class="intro-nav-center">
+
+            <span>
+                EST.
+            </span>
+
+            <strong>
+                2026
+            </strong>
 
         </div>
 
 
-        <div class="nav-status">
 
-            <span class="status-dot"></span>
+        <div class="intro-status">
 
-            SYSTEM ONLINE
+            <span class="live-dot"></span>
+
+            5 MEMBERS
 
         </div>
 
-    </nav>
+
+    </header>
 
 
 
-    <!-- ENTRY CONTENT -->
+    <!-- HERO -->
 
-    <main class="entry-layout">
-
-
-        <!-- LEFT HERO -->
-
-        <div class="entry-hero">
+    <main class="intro-main">
 
 
-            <div class="hero-index">
+        <section class="intro-copy">
+
+
+            <div class="intro-label">
 
                 <span>
                     01
@@ -211,184 +174,420 @@
                 <div></div>
 
                 <small>
-                    PRIVATE DIGITAL SOCIETY
+                    WELCOME TO THE MESS
                 </small>
 
             </div>
 
 
-            <div class="hero-title-wrap">
 
-                <div class="hero-eyebrow">
-                    MEMBERS ONLY • EST. PRSN
-                </div>
+            <h1>
 
+                THE
 
-                <h1 class="hero-title">
+                <span class="word-blue">
+                    CHAOS
+                </span>
 
-                    NOT MADE
+                <span class="word-orange">
+                    ROOM.
+                </span>
 
-                    <span>
-                        FOR EVERYONE.
-                    </span>
-
-                </h1>
-
-
-                <p class="hero-description">
-
-                    A private digital environment built
-                    for conversations, memories and moments
-                    that belong nowhere else.
-
-                </p>
-
-            </div>
-
-
-            <div class="hero-meta">
-
-                <div class="meta-block">
-
-                    <small>
-                        ACCESS
-                    </small>
-
-                    <strong>
-                        RESTRICTED
-                    </strong>
-
-                </div>
-
-
-                <div class="meta-divider"></div>
-
-
-                <div class="meta-block">
-
-                    <small>
-                        NETWORK
-                    </small>
-
-                    <strong>
-                        ENCRYPTED FEEL
-                    </strong>
-
-                </div>
-
-
-                <div class="meta-divider"></div>
-
-
-                <div class="meta-block">
-
-                    <small>
-                        EXPERIENCE
-                    </small>
-
-                    <strong>
-                        PRIVATE
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
+            </h1>
 
 
 
-        <!-- RIGHT ENTRY CARD -->
+            <p class="intro-tagline">
 
-        <div class="entry-card-zone">
+                5 idiots.
+                1 private corner.
+                Unlimited nonsense.
+
+            </p>
 
 
-            <div class="entry-orbit orbit-one"></div>
-            <div class="entry-orbit orbit-two"></div>
+
+            <button
+                id="enterChaosBtn"
+                class="chaos-enter-btn magnetic"
+                type="button"
+            >
+
+                <span>
+                    ENTER THE CHAOS
+                </span>
+
+                <strong>
+                    ↗
+                </strong>
+
+            </button>
 
 
-            <div
-                class="entry-card premium-card"
+        </section>
+
+
+
+        <!-- FLOATING CREW -->
+
+        <section
+            class="crew-stage"
+            aria-label="PRSN Members"
+        >
+
+
+            <article
+                class="crew-card crew-card-1"
                 data-tilt
             >
 
-                <div class="card-edge-light"></div>
+                <span class="crew-number">
+                    01
+                </span>
 
-                <div class="card-topline">
+                <div class="crew-avatar">
+                    S
+                </div>
+
+                <strong>
+                    SHYAM
+                </strong>
+
+                <small>
+                    OG MEMBER
+                </small>
+
+            </article>
+
+
+
+            <article
+                class="crew-card crew-card-2"
+                data-tilt
+            >
+
+                <span class="crew-number">
+                    02
+                </span>
+
+                <div class="crew-avatar">
+                    R
+                </div>
+
+                <strong>
+                    RAVI
+                </strong>
+
+                <small>
+                    OG MEMBER
+                </small>
+
+            </article>
+
+
+
+            <article
+                class="crew-card crew-card-3"
+                data-tilt
+            >
+
+                <span class="crew-number">
+                    03
+                </span>
+
+                <div class="crew-avatar">
+                    P
+                </div>
+
+                <strong>
+                    PRASHANT
+                </strong>
+
+                <small>
+                    OG MEMBER
+                </small>
+
+            </article>
+
+
+
+            <article
+                class="crew-card crew-card-4"
+                data-tilt
+            >
+
+                <span class="crew-number">
+                    04
+                </span>
+
+                <div class="crew-avatar">
+                    N
+                </div>
+
+                <strong>
+                    NUKS
+                </strong>
+
+                <small>
+                    OG MEMBER
+                </small>
+
+            </article>
+
+
+
+            <article
+                class="crew-card crew-card-5"
+                data-tilt
+            >
+
+                <span class="crew-number">
+                    05
+                </span>
+
+                <div class="crew-avatar">
+                    P
+                </div>
+
+                <strong>
+                    PRIYANSHU
+                </strong>
+
+                <small>
+                    OG MEMBER
+                </small>
+
+            </article>
+
+
+            <div
+                class="stage-ring stage-ring-one"
+                aria-hidden="true"
+            ></div>
+
+            <div
+                class="stage-ring stage-ring-two"
+                aria-hidden="true"
+            ></div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- TICKER -->
+
+    <div class="intro-ticker">
+
+        <div class="ticker-track">
+
+            <span>SHYAM</span>
+            <i>✦</i>
+
+            <span>RAVI</span>
+            <i>✦</i>
+
+            <span>PRASHANT</span>
+            <i>✦</i>
+
+            <span>NUKS</span>
+            <i>✦</i>
+
+            <span>PRIYANSHU</span>
+            <i>✦</i>
+
+            <span>PRSN</span>
+            <i>✦</i>
+
+            <span>SHYAM</span>
+            <i>✦</i>
+
+            <span>RAVI</span>
+            <i>✦</i>
+
+            <span>PRASHANT</span>
+            <i>✦</i>
+
+            <span>NUKS</span>
+            <i>✦</i>
+
+            <span>PRIYANSHU</span>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     LOGIN SCREEN
+========================================================= -->
+
+<section
+    id="nameScreen"
+    class="screen login-screen"
+>
+
+
+    <button
+        id="loginBackBtn"
+        class="floating-back-btn"
+        type="button"
+    >
+        ←
+    </button>
+
+
+
+    <div class="login-decoration login-decoration-one"></div>
+
+    <div class="login-decoration login-decoration-two"></div>
+
+
+
+    <main class="login-layout">
+
+
+        <!-- LEFT -->
+
+        <section class="login-copy reveal-section" data-reveal="left">
+
+
+            <span class="section-kicker">
+                IDENTITY CHECK
+            </span>
+
+
+            <h1>
+
+                WHO'S
+
+                <span>
+                    CAUSING
+                </span>
+
+                TROUBLE TODAY?
+
+            </h1>
+
+
+            <p>
+
+                Type your name and get in.
+                No sign-up.
+                No random people.
+
+            </p>
+
+
+
+            <div class="login-members">
+
+                <span>SHYAM</span>
+                <span>RAVI</span>
+                <span>PRASHANT</span>
+                <span>NUKS</span>
+                <span>PRIYANSHU</span>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- LOGIN CARD -->
+
+        <section
+            class="login-card-wrap reveal-section"
+            data-reveal="right"
+        >
+
+
+            <div
+                class="login-card"
+                data-tilt
+            >
+
+
+                <div class="login-card-top">
 
                     <span>
-                        IDENTITY ACCESS
+                        PRSN / ENTRY
                     </span>
 
                     <span>
-                        001
+                        01
                     </span>
 
                 </div>
 
 
-                <div class="entry-symbol">
 
-                    <div class="symbol-ring">
+                <div class="login-face">
 
-                        <div class="symbol-inner">
-                            P
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="entry-card-copy">
-
-                    <span class="mini-label">
-                        MEMBER IDENTIFICATION
+                    <span>
+                        :)
                     </span>
 
-                    <h2>
-                        Enter your identity.
-                    </h2>
-
-                    <p>
-                        PRSN recognizes only selected members.
-                    </p>
-
                 </div>
 
 
-                <div class="input-shell">
 
-                    <div class="input-prefix">
-                        ID
-                    </div>
+                <h2>
+                    What's your name?
+                </h2>
+
+
+                <p>
+                    OG members only.
+                </p>
+
+
+
+                <div class="login-input-wrap">
+
+
+                    <span>
+                        @
+                    </span>
+
 
                     <input
                         id="nameInput"
                         type="text"
-                        placeholder="ENTER NAME"
+                        placeholder="TYPE YOUR NAME"
                         autocomplete="off"
                         spellcheck="false"
                     >
 
+
                 </div>
+
 
 
                 <button
                     id="enterBtn"
-                    class="luxury-btn"
+                    class="primary-btn magnetic"
                     type="button"
                 >
 
                     <span>
-                        ENTER PRSN
+                        LET ME IN
                     </span>
 
-                    <div class="button-arrow">
-                        ↗
-                    </div>
+                    <strong>
+                        →
+                    </strong>
 
                 </button>
+
 
 
                 <div
@@ -397,57 +596,29 @@
                 ></div>
 
 
-                <div class="entry-security">
 
-                    <span class="security-icon">
-                        ◈
-                    </span>
+                <div class="login-card-bottom">
 
                     <span>
-                        PRIVATE SESSION
+                        PRIVATE
                     </span>
 
-                    <div></div>
+                    <i></i>
 
                     <span>
-                        AUTHORIZED MEMBERS
+                        FRIENDS ONLY
                     </span>
 
                 </div>
 
+
             </div>
 
 
-            <div class="floating-coordinate coordinate-one">
-                X / 27.04
-            </div>
-
-            <div class="floating-coordinate coordinate-two">
-                Y / 91.33
-            </div>
-
-        </div>
+        </section>
 
 
     </main>
-
-
-
-    <!-- ENTRY FOOTER -->
-
-    <footer class="entry-footer">
-
-        <span>
-            PRSN © 2026
-        </span>
-
-        <div class="footer-line"></div>
-
-        <span>
-            PRIVATE • PERSONAL • OURS
-        </span>
-
-    </footer>
 
 
 </section>
@@ -464,26 +635,27 @@
 >
 
 
-    <!-- DASHBOARD TOPBAR -->
+    <!-- HEADER -->
 
-    <header class="main-topbar">
+    <header class="main-header">
 
 
         <div class="dashboard-brand">
 
-            <div class="dashboard-logo">
-                PRSN
-            </div>
+            <span class="brand-mark">
+                P
+            </span>
 
-            <div class="dashboard-brand-meta">
 
-                <span>
-                    PRIVATE
-                </span>
+            <div>
 
-                <span>
-                    NETWORK
-                </span>
+                <strong>
+                    PRSN
+                </strong>
+
+                <small>
+                    THE CHAOS ROOM
+                </small>
 
             </div>
 
@@ -491,49 +663,48 @@
 
 
 
-        <div class="dashboard-nav-center">
+        <nav class="desktop-nav">
 
-            <span class="nav-active">
+            <a href="#dashboardTop">
                 HOME
-            </span>
+            </a>
 
-            <span>
-                PRIVATE SOCIETY
-            </span>
+            <a href="#spacesSection">
+                SPACES
+            </a>
 
-        </div>
+            <a href="#crewSection">
+                CREW
+            </a>
+
+        </nav>
 
 
 
-        <div class="dashboard-actions">
+        <div class="header-actions">
 
 
-            <div class="user-chip">
+            <div class="user-pill">
 
-                <span class="user-online-dot"></span>
+                <span class="live-dot"></span>
 
-                <span
-                    id="currentUser"
-                    class="current-user-name"
-                >
+                <strong id="currentUser">
                     —
-                </span>
+                </strong>
 
             </div>
+
 
 
             <button
                 id="musicBtn"
-                class="icon-button"
+                class="icon-btn"
                 type="button"
-                title="Music"
+                aria-label="Toggle music"
             >
-
-                <span>
-                    ♫
-                </span>
-
+                ♫
             </button>
+
 
         </div>
 
@@ -542,31 +713,33 @@
 
 
 
-    <!-- DASHBOARD CONTENT -->
+    <!-- DASHBOARD MAIN -->
 
-    <main class="dashboard-main">
+    <main
+        id="dashboardTop"
+        class="dashboard-main"
+    >
 
 
         <!-- HERO -->
 
-        <section class="dashboard-hero">
+        <section
+            class="dashboard-hero reveal-section"
+            data-reveal="up"
+        >
 
 
             <div class="dashboard-hero-copy">
 
 
-                <div class="hero-system-label">
-
-                    <span class="status-dot"></span>
-
-                    PRIVATE NETWORK ACTIVE
-
-                </div>
+                <span class="section-kicker">
+                    GOOD TO SEE YOU
+                </span>
 
 
                 <h1>
 
-                    Welcome back,
+                    HEY,
 
                     <span id="welcomeUser">
                         —
@@ -577,43 +750,38 @@
 
                 <p>
 
-                    Your private corner of the internet.
-                    Conversations, voices and memories —
-                    inside one space.
+                    Welcome back to the place where
+                    useful things and complete nonsense
+                    somehow live together.
 
                 </p>
+
 
             </div>
 
 
 
-            <div class="dashboard-hero-art">
+            <div
+                class="chaos-orbit-card"
+                data-tilt
+            >
 
 
-                <div class="hero-art-disc disc-one"></div>
-                <div class="hero-art-disc disc-two"></div>
-                <div class="hero-art-disc disc-three"></div>
+                <div class="orbit-ring orbit-ring-a"></div>
+
+                <div class="orbit-ring orbit-ring-b"></div>
 
 
-                <div class="hero-art-core">
+                <div class="orbit-center">
 
-                    <span>
-                        P
-                    </span>
+                    <strong>
+                        05
+                    </strong>
 
-                </div>
+                    <small>
+                        OGs
+                    </small>
 
-
-                <div class="hero-art-label label-one">
-                    PRIVATE
-                </div>
-
-                <div class="hero-art-label label-two">
-                    PERSONAL
-                </div>
-
-                <div class="hero-art-label label-three">
-                    OURS
                 </div>
 
 
@@ -624,267 +792,511 @@
 
 
 
-        <!-- SECTION HEADER -->
+        <!-- FUN STRIP -->
 
-        <div class="section-heading">
+        <section
+            class="fun-strip reveal-section"
+            data-reveal="right"
+        >
 
 
-            <div>
+            <article>
 
                 <span>
-                    SELECT ENVIRONMENT
+                    MATH PERIOD
                 </span>
 
-                <h2>
-                    Enter the network.
-                </h2>
+                <strong>
+                    SERIOUS MODE
+                </strong>
 
-            </div>
+            </article>
 
 
-            <div class="section-counter">
-                02 SPACES
-            </div>
 
+            <div class="fun-strip-divider"></div>
 
-        </div>
 
 
+            <article>
 
-        <!-- FEATURE CARDS -->
+                <span>
+                    HINDI PERIOD
+                </span>
 
-        <section class="experience-grid">
+                <strong>
+                    CHAOS MODE
+                </strong>
 
+            </article>
 
-            <!-- CHAT -->
 
-            <button
-                id="chatBtn"
-                class="experience-card chat-experience"
-                type="button"
-                data-tilt
-            >
 
+            <div class="fun-strip-divider"></div>
 
-                <div class="experience-card-number">
-                    01
-                </div>
 
 
-                <div class="experience-glow"></div>
+            <article>
 
+                <span>
+                    GROUP CHAT
+                </span>
 
-                <div class="experience-top">
+                <strong>
+                    NO CONTROL
+                </strong>
 
-
-                    <div class="experience-icon">
-
-                        <span>
-                            ◉
-                        </span>
-
-                    </div>
-
-
-                    <div class="experience-status">
-
-                        <span></span>
-
-                        LIVE
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div class="experience-content">
-
-
-                    <small>
-                        REALTIME ENVIRONMENT
-                    </small>
-
-
-                    <h3>
-                        Community
-                        <em>
-                            Chat
-                        </em>
-                    </h3>
-
-
-                    <p>
-
-                        Realtime private conversations,
-                        photos and voice moments inside
-                        the PRSN network.
-
-                    </p>
-
-
-                </div>
-
-
-
-                <div class="experience-footer">
-
-
-                    <span>
-                        ENTER CHAT
-                    </span>
-
-
-                    <div class="experience-arrow">
-
-                        <span>
-                            ↗
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="card-scanline"></div>
-
-
-            </button>
-
-
-
-            <!-- WALL -->
-
-            <button
-                id="galleryBtn"
-                class="experience-card wall-experience"
-                type="button"
-                data-tilt
-            >
-
-
-                <div class="experience-card-number">
-                    02
-                </div>
-
-
-                <div class="experience-glow"></div>
-
-
-                <div class="experience-top">
-
-
-                    <div class="experience-icon">
-
-                        <span>
-                            ◫
-                        </span>
-
-                    </div>
-
-
-                    <div class="experience-status">
-
-                        ARCHIVE
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div class="experience-content">
-
-
-                    <small>
-                        VISUAL MEMORY ARCHIVE
-                    </small>
-
-
-                    <h3>
-                        Amazing
-                        <em>
-                            Wall
-                        </em>
-                    </h3>
-
-
-                    <p>
-
-                        A visual archive of PRSN.
-                        Upload the photos worth keeping.
-
-                    </p>
-
-
-                </div>
-
-
-
-                <div class="experience-footer">
-
-
-                    <span>
-                        OPEN WALL
-                    </span>
-
-
-                    <div class="experience-arrow">
-
-                        <span>
-                            ↗
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="card-scanline"></div>
-
-
-            </button>
+            </article>
 
 
         </section>
 
 
 
-        <!-- BOTTOM INFO -->
+        <!-- =================================================
+             SPACES
+        ================================================== -->
 
-        <section class="dashboard-bottom-info">
+        <section
+            id="spacesSection"
+            class="spaces-section"
+        >
 
 
-            <div class="info-line">
+            <div
+                class="section-heading reveal-section"
+                data-reveal="left"
+            >
 
-                <span>
-                    PRSN NETWORK
+
+                <div>
+
+                    <span class="section-kicker">
+                        PICK YOUR DESTINATION
+                    </span>
+
+                    <h2>
+                        What are we doing?
+                    </h2>
+
+                </div>
+
+
+                <span class="section-count">
+                    03 SPACES
                 </span>
 
-                <div></div>
-
-                <span>
-                    2026
-                </span>
 
             </div>
 
 
-            <div class="dashboard-quote">
 
-                <span>
-                    “
-                </span>
+            <div class="spaces-grid">
 
-                <p>
-                    Some spaces aren't meant to be public.
-                </p>
+
+                <!-- CHAT -->
+
+                <button
+                    id="chatBtn"
+                    class="space-card chat-space reveal-section"
+                    data-reveal="left"
+                    data-tilt
+                    type="button"
+                >
+
+
+                    <span class="space-number">
+                        01
+                    </span>
+
+
+                    <div class="space-icon">
+                        #
+                    </div>
+
+
+                    <div class="space-copy">
+
+                        <small>
+                            REALTIME
+                        </small>
+
+                        <h3>
+
+                            COMMUNITY
+
+                            <span>
+                                CHAT
+                            </span>
+
+                        </h3>
+
+
+                        <p>
+
+                            Text, photos, voice notes
+                            and whatever nonsense
+                            happens next.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="space-footer">
+
+                        <span>
+                            OPEN CHAT
+                        </span>
+
+                        <strong>
+                            ↗
+                        </strong>
+
+                    </div>
+
+
+                </button>
+
+
+
+                <!-- AMAZING WALL -->
+
+                <button
+                    id="galleryBtn"
+                    class="space-card memory-space reveal-section"
+                    data-reveal="up"
+                    data-tilt
+                    type="button"
+                >
+
+
+                    <span class="space-number">
+                        02
+                    </span>
+
+
+                    <div class="space-icon">
+                        ◫
+                    </div>
+
+
+                    <div class="space-copy">
+
+                        <small>
+                            MEMORIES
+                        </small>
+
+                        <h3>
+
+                            AMAZING
+
+                            <span>
+                                WALL
+                            </span>
+
+                        </h3>
+
+
+                        <p>
+
+                            Photos worth keeping
+                            after the group chat
+                            forgets them.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="space-footer">
+
+                        <span>
+                            VIEW MEMORIES
+                        </span>
+
+                        <strong>
+                            ↗
+                        </strong>
+
+                    </div>
+
+
+                </button>
+
+
+
+                <!-- STUDY BOARD -->
+
+                <button
+                    id="studyBtn"
+                    class="space-card study-space reveal-section"
+                    data-reveal="right"
+                    data-tilt
+                    type="button"
+                >
+
+
+                    <span class="space-number">
+                        03
+                    </span>
+
+
+                    <div class="space-icon">
+                        ✎
+                    </div>
+
+
+                    <div class="space-copy">
+
+                        <small>
+                            ACTUALLY USEFUL
+                        </small>
+
+                        <h3>
+
+                            STUDY
+
+                            <span>
+                                BOARD
+                            </span>
+
+                        </h3>
+
+
+                        <p>
+
+                            Topic-wise notes,
+                            photos and videos
+                            shared by the crew.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="space-footer">
+
+                        <span>
+                            START STUDYING
+                        </span>
+
+                        <strong>
+                            ↗
+                        </strong>
+
+                    </div>
+
+
+                </button>
+
 
             </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             CREW
+        ================================================== -->
+
+        <section
+            id="crewSection"
+            class="crew-section"
+        >
+
+
+            <div
+                class="section-heading reveal-section"
+                data-reveal="left"
+            >
+
+
+                <div>
+
+                    <span class="section-kicker">
+                        THE PEOPLE RESPONSIBLE
+                    </span>
+
+                    <h2>
+                        The crew.
+                    </h2>
+
+                </div>
+
+
+                <span class="section-count">
+                    05 MEMBERS
+                </span>
+
+
+            </div>
+
+
+
+            <div class="crew-list">
+
+
+                <article
+                    class="crew-row reveal-section"
+                    data-reveal="left"
+                >
+
+                    <span>
+                        01
+                    </span>
+
+                    <strong>
+                        SHYAM
+                    </strong>
+
+                    <small>
+                        OG MEMBER
+                    </small>
+
+                    <i>
+                        →
+                    </i>
+
+                </article>
+
+
+
+                <article
+                    class="crew-row reveal-section"
+                    data-reveal="right"
+                >
+
+                    <span>
+                        02
+                    </span>
+
+                    <strong>
+                        RAVI
+                    </strong>
+
+                    <small>
+                        OG MEMBER
+                    </small>
+
+                    <i>
+                        →
+                    </i>
+
+                </article>
+
+
+
+                <article
+                    class="crew-row reveal-section"
+                    data-reveal="left"
+                >
+
+                    <span>
+                        03
+                    </span>
+
+                    <strong>
+                        PRASHANT
+                    </strong>
+
+                    <small>
+                        OG MEMBER
+                    </small>
+
+                    <i>
+                        →
+                    </i>
+
+                </article>
+
+
+
+                <article
+                    class="crew-row reveal-section"
+                    data-reveal="right"
+                >
+
+                    <span>
+                        04
+                    </span>
+
+                    <strong>
+                        NUKS
+                    </strong>
+
+                    <small>
+                        OG MEMBER
+                    </small>
+
+                    <i>
+                        →
+                    </i>
+
+                </article>
+
+
+
+                <article
+                    class="crew-row reveal-section"
+                    data-reveal="left"
+                >
+
+                    <span>
+                        05
+                    </span>
+
+                    <strong>
+                        PRIYANSHU
+                    </strong>
+
+                    <small>
+                        OG MEMBER
+                    </small>
+
+                    <i>
+                        →
+                    </i>
+
+                </article>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- END -->
+
+        <section
+            class="dashboard-end reveal-section"
+            data-reveal="up"
+        >
+
+
+            <span>
+                PRSN
+            </span>
+
+
+            <h2>
+
+                FIVE PEOPLE.
+
+                <strong>
+                    ONE VERY QUESTIONABLE GROUP.
+                </strong>
+
+            </h2>
+
+
+            <p>
+                Private since 2026.
+            </p>
 
 
         </section>
@@ -907,16 +1319,8 @@
 >
 
 
-    <div class="modal-backdrop-art">
-
-        <div class="modal-orbit modal-orbit-one"></div>
-        <div class="modal-orbit modal-orbit-two"></div>
-
-    </div>
-
-
     <div
-        class="access-modal premium-card"
+        class="access-card"
         data-tilt
     >
 
@@ -930,46 +1334,35 @@
         </button>
 
 
-        <div class="modal-top-code">
-            ACCESS / 01
+
+        <span class="section-kicker">
+            PRIVATE CHAT
+        </span>
+
+
+        <div class="access-face">
+            :P
         </div>
 
 
-        <div class="lock-visual">
-
-            <div class="lock-ring">
-
-                <span>
-                    ◈
-                </span>
-
-            </div>
-
-        </div>
+        <h2>
+            Codeword?
+        </h2>
 
 
-        <div class="modal-copy">
-
-            <small>
-                ENCRYPTED ENTRY POINT
-            </small>
-
-            <h2>
-                Private Chat
-            </h2>
-
-            <p>
-                Enter the private codeword to continue.
-            </p>
-
-        </div>
+        <p>
+            You already know it.
+        </p>
 
 
-        <div class="input-shell code-input-shell">
 
-            <div class="input-prefix">
+        <div class="access-input">
+
+
+            <span>
                 //
-            </div>
+            </span>
+
 
             <input
                 id="chatCode"
@@ -978,39 +1371,33 @@
                 autocomplete="off"
             >
 
+
         </div>
+
 
 
         <button
             id="unlockChat"
-            class="luxury-btn"
+            class="primary-btn"
             type="button"
         >
 
             <span>
-                UNLOCK NETWORK
+                OPEN CHAT
             </span>
 
-            <div class="button-arrow">
+            <strong>
                 →
-            </div>
+            </strong>
 
         </button>
+
 
 
         <div
             id="chatError"
             class="error-message"
         ></div>
-
-
-        <div class="modal-secure-note">
-
-            <span class="status-dot"></span>
-
-            PRIVATE CONNECTION
-
-        </div>
 
 
     </div>
@@ -1030,9 +1417,7 @@
 >
 
 
-    <!-- CHAT HEADER -->
-
-    <header class="panel-header chat-header">
+    <header class="panel-header">
 
 
         <div class="panel-header-left">
@@ -1040,33 +1425,23 @@
 
             <button
                 id="backFromChat"
-                class="back-button"
+                class="panel-back"
                 type="button"
             >
                 ←
             </button>
 
 
-            <div class="panel-identity">
 
+            <div>
 
-                <div class="panel-icon">
-                    P
-                </div>
+                <small>
+                    PRSN / LIVE
+                </small>
 
-
-                <div>
-
-                    <span class="panel-kicker">
-                        PRSN NETWORK
-                    </span>
-
-                    <h2>
-                        COMMUNITY CHAT
-                    </h2>
-
-                </div>
-
+                <strong>
+                    COMMUNITY CHAT
+                </strong>
 
             </div>
 
@@ -1075,17 +1450,11 @@
 
 
 
-        <div class="panel-header-right">
+        <div class="panel-live">
 
+            <span class="live-dot"></span>
 
-            <div class="live-indicator">
-
-                <span></span>
-
-                REALTIME
-
-            </div>
-
+            REALTIME
 
         </div>
 
@@ -1094,43 +1463,50 @@
 
 
 
-    <!-- CHAT BODY -->
-
     <div class="chat-layout">
 
 
-        <!-- CHAT SIDEBAR -->
+        <!-- SIDEBAR -->
 
         <aside class="chat-sidebar">
 
 
-            <div class="sidebar-section">
+            <span class="sidebar-title">
+                ROOM
+            </span>
 
 
-                <span class="sidebar-label">
-                    ENVIRONMENT
+
+            <div class="chat-room active">
+
+                <span>
+                    #
                 </span>
 
+                <div>
 
-                <div class="sidebar-room active">
+                    <strong>
+                        community
+                    </strong>
 
-                    <div class="room-icon">
-                        #
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            community
-                        </strong>
-
-                        <small>
-                            Main conversation
-                        </small>
-
-                    </div>
+                    <small>
+                        5 members
+                    </small>
 
                 </div>
+
+            </div>
+
+
+
+            <div class="chat-members-mini">
+
+
+                <span>S</span>
+                <span>R</span>
+                <span>P</span>
+                <span>N</span>
+                <span>P</span>
 
 
             </div>
@@ -1139,27 +1515,17 @@
 
             <div class="sidebar-bottom">
 
+                <small>
+                    NOW PLAYING
+                </small>
 
-                <div class="encrypted-card">
+                <strong>
+                    PRSN MUSIC
+                </strong>
 
-                    <span>
-                        ◈
-                    </span>
-
-                    <div>
-
-                        <small>
-                            NETWORK
-                        </small>
-
-                        <strong>
-                            PRIVATE
-                        </strong>
-
-                    </div>
-
-                </div>
-
+                <span>
+                    Same track. No restart.
+                </span>
 
             </div>
 
@@ -1175,21 +1541,17 @@
 
             <div class="chat-intro">
 
-
                 <span>
-                    PRSN / COMMUNITY
+                    # COMMUNITY
                 </span>
 
-
-                <h3>
-                    This is where the noise begins.
-                </h3>
-
+                <h2>
+                    Say something stupid.
+                </h2>
 
                 <p>
-                    Messages, photos and voices appear here.
+                    Someone else probably will anyway.
                 </p>
-
 
             </div>
 
@@ -1202,7 +1564,7 @@
 
 
 
-            <!-- RECORDING STATUS -->
+            <!-- VOICE RECORDING -->
 
             <div
                 id="voiceStatus"
@@ -1210,7 +1572,7 @@
             >
 
 
-                <div class="recording-wave">
+                <div class="record-bars">
 
                     <span></span>
                     <span></span>
@@ -1221,41 +1583,31 @@
                 </div>
 
 
-                <span
-                    id="voiceStatusText"
-                    class="voice-status-text"
-                >
+                <span id="voiceStatusText">
                     Recording...
                 </span>
 
 
-                <strong
-                    id="voiceTimer"
-                >
+                <strong id="voiceTimer">
                     0:00
                 </strong>
-
-
-                <span class="voice-cancel-text">
-                    RELEASE TO SEND
-                </span>
 
 
             </div>
 
 
 
-            <!-- INPUT -->
+            <!-- MESSAGE COMPOSER -->
 
             <div class="chat-composer">
 
 
-                <div class="composer-inner">
+                <div class="composer-shell">
 
 
                     <label
                         for="photoInput"
-                        class="composer-action"
+                        class="composer-icon"
                         title="Send photo"
                     >
                         +
@@ -1270,37 +1622,34 @@
                     >
 
 
-                    <div class="composer-input-wrap">
 
-                        <input
-                            id="messageInput"
-                            type="text"
-                            placeholder="Write something..."
-                            autocomplete="off"
-                        >
+                    <input
+                        id="messageInput"
+                        type="text"
+                        placeholder="Write something..."
+                        autocomplete="off"
+                    >
 
-                    </div>
 
 
                     <button
                         id="voiceRecordBtn"
-                        class="composer-action voice-record-btn"
+                        class="composer-icon"
                         type="button"
-                        title="Hold to record"
+                        title="Hold to record voice"
                     >
                         ◉
                     </button>
 
 
+
                     <button
                         id="sendMessage"
-                        class="send-button"
+                        class="send-btn"
                         type="button"
                     >
 
-                        <span>
-                            SEND
-                        </span>
+                        SEND
 
                         <span>
                             ↗
@@ -1308,19 +1657,6 @@
 
                     </button>
 
-
-                </div>
-
-
-                <div class="composer-footer">
-
-                    <span>
-                        PRSN PRIVATE MESSAGING
-                    </span>
-
-                    <span>
-                        ENTER TO SEND
-                    </span>
 
                 </div>
 
@@ -1348,8 +1684,6 @@
 >
 
 
-    <!-- GALLERY HEADER -->
-
     <header class="panel-header">
 
 
@@ -1358,32 +1692,686 @@
 
             <button
                 id="backFromGallery"
-                class="back-button"
+                class="panel-back"
                 type="button"
             >
                 ←
             </button>
 
 
-            <div class="panel-identity">
+
+            <div>
+
+                <small>
+                    PRSN / MEMORIES
+                </small>
+
+                <strong>
+                    AMAZING WALL
+                </strong>
+
+            </div>
 
 
-                <div class="panel-icon">
-                    ◫
-                </div>
+        </div>
 
 
-                <div>
+        <span class="panel-number">
+            02
+        </span>
 
-                    <span class="panel-kicker">
-                        VISUAL ARCHIVE
+
+    </header>
+
+
+
+    <main class="gallery-content">
+
+
+        <section
+            class="gallery-hero reveal-section"
+            data-reveal="up"
+        >
+
+
+            <div>
+
+                <span class="section-kicker">
+                    CAMERA ROLL SURVIVORS
+                </span>
+
+                <h1>
+
+                    THE GOOD,
+
+                    <span>
+                        BAD
                     </span>
 
-                    <h2>
-                        AMAZING WALL
-                    </h2>
+                    & BLURRY.
 
-                </div>
+                </h1>
+
+            </div>
+
+
+
+            <div class="gallery-upload-area">
+
+
+                <p>
+
+                    Upload the photos
+                    that deserve to survive
+                    the group chat.
+
+                </p>
+
+
+                <label
+                    for="galleryInput"
+                    class="secondary-btn"
+                >
+
+                    + ADD MEMORY
+
+                </label>
+
+
+                <input
+                    id="galleryInput"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <div class="gallery-filter-bar">
+
+            <span>
+                ALL MEMORIES
+            </span>
+
+            <i></i>
+
+            <span>
+                5 CONTRIBUTORS
+            </span>
+
+        </div>
+
+
+
+        <section
+            id="galleryGrid"
+            class="gallery-grid"
+        ></section>
+
+
+    </main>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     STUDY BOARD
+========================================================= -->
+
+<section
+    id="studyScreen"
+    class="full-panel hidden"
+>
+
+
+    <!-- HEADER -->
+
+    <header class="panel-header">
+
+
+        <div class="panel-header-left">
+
+
+            <button
+                id="backFromStudy"
+                class="panel-back"
+                type="button"
+            >
+                ←
+            </button>
+
+
+
+            <div>
+
+                <small>
+                    PRSN / CLASS 9
+                </small>
+
+                <strong>
+                    STUDY BOARD
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <button
+            id="openStudyUploadBtn"
+            class="header-upload-btn"
+            type="button"
+        >
+
+            + ADD NOTES
+
+        </button>
+
+
+    </header>
+
+
+
+    <main class="study-content">
+
+
+        <!-- HERO -->
+
+        <section
+            class="study-hero reveal-section"
+            data-reveal="up"
+        >
+
+
+            <div>
+
+
+                <span class="section-kicker">
+                    MAYBE WE ACTUALLY STUDY HERE
+                </span>
+
+
+                <h1>
+
+                    SHARE.
+
+                    <span>
+                        LEARN.
+                    </span>
+
+                    SURVIVE EXAMS.
+
+                </h1>
+
+
+            </div>
+
+
+
+            <div class="study-hero-stats">
+
+
+                <article>
+
+                    <strong id="studyPostCount">
+                        0
+                    </strong>
+
+                    <span>
+                        POSTS
+                    </span>
+
+                </article>
+
+
+                <article>
+
+                    <strong>
+                        06
+                    </strong>
+
+                    <span>
+                        SUBJECTS
+                    </span>
+
+                </article>
+
+
+                <article>
+
+                    <strong>
+                        05
+                    </strong>
+
+                    <span>
+                        CONTRIBUTORS
+                    </span>
+
+                </article>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- SUBJECT FILTER -->
+
+        <section class="study-toolbar">
+
+
+            <div
+                id="studySubjectTabs"
+                class="subject-tabs"
+            >
+
+
+                <button
+                    class="subject-tab active"
+                    data-subject="ALL"
+                    type="button"
+                >
+                    ALL
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="MATHS"
+                    type="button"
+                >
+                    MATHS
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="SCIENCE"
+                    type="button"
+                >
+                    SCIENCE
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="SST"
+                    type="button"
+                >
+                    SST
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="ENGLISH"
+                    type="button"
+                >
+                    ENGLISH
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="HINDI"
+                    type="button"
+                >
+                    HINDI
+                </button>
+
+
+                <button
+                    class="subject-tab"
+                    data-subject="SANSKRIT"
+                    type="button"
+                >
+                    SANSKRIT
+                </button>
+
+
+            </div>
+
+
+
+            <div class="study-search">
+
+
+                <span>
+                    ⌕
+                </span>
+
+
+                <input
+                    id="studySearchInput"
+                    type="search"
+                    placeholder="Search topic..."
+                    autocomplete="off"
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- RECENT TOPICS STRIP -->
+
+        <section class="topics-strip">
+
+
+            <span>
+                TOPICS
+            </span>
+
+
+            <div id="recentTopics">
+
+                <button
+                    type="button"
+                    data-topic="GRAVITATION"
+                >
+                    GRAVITATION
+                </button>
+
+                <button
+                    type="button"
+                    data-topic="POLYNOMIALS"
+                >
+                    POLYNOMIALS
+                </button>
+
+                <button
+                    type="button"
+                    data-topic="LINES AND ANGLES"
+                >
+                    LINES & ANGLES
+                </button>
+
+                <button
+                    type="button"
+                    data-topic="MOTION"
+                >
+                    MOTION
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- POSTS -->
+
+        <section
+            id="studyPostsGrid"
+            class="study-posts-grid"
+        >
+
+
+            <div class="empty-state">
+
+                <span>
+                    ✎
+                </span>
+
+                <strong>
+                    Loading Study Board...
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     STUDY UPLOAD MODAL
+========================================================= -->
+
+<div
+    id="studyUploadModal"
+    class="modal hidden"
+>
+
+
+    <div
+        class="study-upload-card"
+        data-tilt
+    >
+
+
+        <button
+            id="closeStudyUpload"
+            class="modal-close"
+            type="button"
+        >
+            ×
+        </button>
+
+
+
+        <span class="section-kicker">
+            SHARE WITH THE CREW
+        </span>
+
+
+        <h2>
+            Add Study Material
+        </h2>
+
+
+        <p>
+            Pick a subject, topic and what you want to share.
+        </p>
+
+
+
+        <div class="study-form-grid">
+
+
+            <!-- SUBJECT -->
+
+            <label class="form-field">
+
+                <span>
+                    SUBJECT
+                </span>
+
+
+                <select id="studySubjectSelect">
+
+                    <option value="">
+                        SELECT SUBJECT
+                    </option>
+
+                    <option value="MATHS">
+                        MATHS
+                    </option>
+
+                    <option value="SCIENCE">
+                        SCIENCE
+                    </option>
+
+                    <option value="SST">
+                        SST
+                    </option>
+
+                    <option value="ENGLISH">
+                        ENGLISH
+                    </option>
+
+                    <option value="HINDI">
+                        HINDI
+                    </option>
+
+                    <option value="SANSKRIT">
+                        SANSKRIT
+                    </option>
+
+                </select>
+
+            </label>
+
+
+
+            <!-- TOPIC -->
+
+            <label class="form-field">
+
+                <span>
+                    TOPIC
+                </span>
+
+                <input
+                    id="studyTopicInput"
+                    type="text"
+                    placeholder="e.g. Gravitation"
+                    autocomplete="off"
+                >
+
+            </label>
+
+
+
+            <!-- TITLE -->
+
+            <label class="form-field form-field-full">
+
+                <span>
+                    TITLE
+                </span>
+
+                <input
+                    id="studyTitleInput"
+                    type="text"
+                    placeholder="Short title for your notes"
+                    autocomplete="off"
+                >
+
+            </label>
+
+
+
+            <!-- TEXT NOTES -->
+
+            <label class="form-field form-field-full">
+
+                <span>
+                    NOTES
+                </span>
+
+                <textarea
+                    id="studyTextInput"
+                    rows="5"
+                    placeholder="Write notes here, or leave blank if you're sharing a photo/video..."
+                ></textarea>
+
+            </label>
+
+
+        </div>
+
+
+
+        <!-- FILE TYPE -->
+
+        <div class="study-media-picker">
+
+
+            <span class="picker-label">
+                ATTACHMENT
+            </span>
+
+
+
+            <div class="media-type-buttons">
+
+
+                <button
+                    class="media-type-btn active"
+                    data-study-type="none"
+                    type="button"
+                >
+                    TEXT ONLY
+                </button>
+
+
+                <button
+                    class="media-type-btn"
+                    data-study-type="image"
+                    type="button"
+                >
+                    PHOTO
+                </button>
+
+
+                <button
+                    class="media-type-btn"
+                    data-study-type="video"
+                    type="button"
+                >
+                    VIDEO
+                </button>
+
+
+            </div>
+
+
+
+            <div
+                id="studyFileArea"
+                class="study-file-area hidden"
+            >
+
+
+                <label
+                    for="studyFileInput"
+                    class="study-file-drop"
+                >
+
+                    <span>
+                        +
+                    </span>
+
+                    <strong>
+                        CHOOSE FILE
+                    </strong>
+
+                    <small id="studyFileName">
+                        No file selected
+                    </small>
+
+                </label>
+
+
+                <input
+                    id="studyFileInput"
+                    type="file"
+                    accept="image/*,video/*"
+                    hidden
+                >
 
 
             </div>
@@ -1393,11 +2381,237 @@
 
 
 
-        <div class="panel-header-right">
+        <button
+            id="publishStudyPostBtn"
+            class="primary-btn"
+            type="button"
+        >
 
-            <span class="gallery-header-index">
-                PRSN / 02
+            <span>
+                PUBLISH TO STUDY BOARD
             </span>
+
+            <strong>
+                ↗
+            </strong>
+
+        </button>
+
+
+
+        <div
+            id="studyUploadError"
+            class="error-message"
+        ></div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     ADMIN LOGIN
+========================================================= -->
+
+<section
+    id="adminLoginScreen"
+    class="screen admin-login-screen"
+>
+
+
+    <button
+        id="adminBackBtn"
+        class="floating-back-btn"
+        type="button"
+    >
+        ←
+    </button>
+
+
+
+    <main class="admin-login-layout">
+
+
+        <section
+            class="admin-login-copy reveal-section"
+            data-reveal="left"
+        >
+
+            <span class="section-kicker">
+                PRSN CONTROL
+            </span>
+
+
+            <h1>
+
+                ADMIN
+
+                <span>
+                    MODE.
+                </span>
+
+            </h1>
+
+
+            <p>
+
+                Members, activity,
+                deleted messages,
+                media and Study Board uploads.
+
+            </p>
+
+        </section>
+
+
+
+        <section
+            class="admin-login-card reveal-section"
+            data-reveal="right"
+            data-tilt
+        >
+
+
+            <span class="admin-warning">
+                RESTRICTED
+            </span>
+
+
+            <div class="admin-face">
+                ◈
+            </div>
+
+
+            <h2>
+                Verify admin
+            </h2>
+
+
+
+            <div class="admin-input">
+
+                <span>
+                    ID
+                </span>
+
+                <input
+                    id="adminUsername"
+                    type="text"
+                    placeholder="ADMIN USERNAME"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+
+            <div class="admin-input">
+
+                <span>
+                    KEY
+                </span>
+
+                <input
+                    id="adminPassword"
+                    type="password"
+                    placeholder="ADMIN PASSWORD"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+
+            <button
+                id="adminLoginBtn"
+                class="admin-login-btn"
+                type="button"
+            >
+
+                ENTER CONTROL CENTER
+
+                <span>
+                    ↗
+                </span>
+
+            </button>
+
+
+
+            <div
+                id="adminLoginError"
+                class="error-message"
+            ></div>
+
+
+        </section>
+
+
+    </main>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     ADMIN CONTROL CENTER
+========================================================= -->
+
+<section
+    id="adminPanel"
+    class="screen admin-panel-screen"
+>
+
+
+    <header class="admin-header">
+
+
+        <div class="dashboard-brand">
+
+            <span class="brand-mark">
+                P
+            </span>
+
+            <div>
+
+                <strong>
+                    PRSN
+                </strong>
+
+                <small>
+                    CONTROL CENTER
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="admin-header-actions">
+
+
+            <button
+                id="adminRefreshBtn"
+                class="admin-small-btn"
+                type="button"
+            >
+                ↻ REFRESH
+            </button>
+
+
+            <button
+                id="adminLogoutBtn"
+                class="admin-small-btn danger"
+                type="button"
+            >
+                LOGOUT
+            </button>
+
 
         </div>
 
@@ -1406,107 +2620,468 @@
 
 
 
-    <!-- GALLERY HERO -->
-
-    <div class="gallery-hero">
+    <main class="admin-main">
 
 
-        <div>
+        <!-- ADMIN HERO -->
+
+        <section class="admin-hero">
 
 
-            <span class="gallery-kicker">
-                PRIVATE VISUAL ARCHIVE
-            </span>
+            <div>
 
-
-            <h1>
-
-                Moments worth
-
-                <em>
-                    keeping.
-                </em>
-
-            </h1>
-
-
-        </div>
-
-
-
-        <div class="gallery-hero-right">
-
-
-            <p>
-                A private collection of memories
-                uploaded by the PRSN circle.
-            </p>
-
-
-            <label
-                for="galleryInput"
-                class="gallery-upload-button"
-            >
-
-                <span>
-                    + ADD MEMORY
+                <span class="section-kicker">
+                    CONTROL CENTER
                 </span>
 
+                <h1>
+                    PRSN ADMIN
+                </h1>
+
+                <p>
+                    Only activity inside PRSN is shown here.
+                </p>
+
+            </div>
+
+
+            <div class="admin-online">
+
+                <span class="live-dot"></span>
+
+                SYSTEM ONLINE
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- STATS -->
+
+        <section class="admin-stats">
+
+
+            <article>
+
                 <span>
-                    ↗
+                    MEMBERS
                 </span>
 
-            </label>
+                <strong id="memberCount">
+                    5
+                </strong>
+
+            </article>
 
 
-            <input
-                id="galleryInput"
-                type="file"
-                accept="image/*"
-                hidden
+
+            <article>
+
+                <span>
+                    ONLINE
+                </span>
+
+                <strong id="onlineCount">
+                    0
+                </strong>
+
+            </article>
+
+
+
+            <article>
+
+                <span>
+                    ACTIVITY
+                </span>
+
+                <strong id="activityCount">
+                    0
+                </strong>
+
+            </article>
+
+
+
+            <article>
+
+                <span>
+                    DELETED
+                </span>
+
+                <strong id="deletedCount">
+                    0
+                </strong>
+
+            </article>
+
+
+
+            <article>
+
+                <span>
+                    STUDY POSTS
+                </span>
+
+                <strong id="adminStudyCount">
+                    0
+                </strong>
+
+            </article>
+
+
+        </section>
+
+
+
+        <!-- ADMIN TABS -->
+
+        <nav class="admin-tabs">
+
+
+            <button
+                class="admin-tab active"
+                data-admin-tab="members"
+                type="button"
             >
+                MEMBERS
+            </button>
 
 
-        </div>
+            <button
+                class="admin-tab"
+                data-admin-tab="activity"
+                type="button"
+            >
+                ACTIVITY
+            </button>
 
 
-    </div>
+            <button
+                class="admin-tab"
+                data-admin-tab="deleted"
+                type="button"
+            >
+                DELETED MESSAGES
+            </button>
+
+
+            <button
+                class="admin-tab"
+                data-admin-tab="media"
+                type="button"
+            >
+                MEDIA
+            </button>
+
+
+            <button
+                class="admin-tab"
+                data-admin-tab="study"
+                type="button"
+            >
+                STUDY UPLOADS
+            </button>
+
+
+        </nav>
 
 
 
-    <!-- GALLERY META -->
+        <!-- MEMBERS -->
 
-    <div class="gallery-meta-strip">
-
-        <span>
-            PRSN ARCHIVE
-        </span>
-
-        <div></div>
-
-        <span>
-            PRIVATE MOMENTS
-        </span>
-
-        <div></div>
-
-        <span>
-            EST. 2026
-        </span>
-
-    </div>
+        <section
+            class="admin-section active"
+            data-admin-section="members"
+        >
 
 
+            <div class="admin-section-title">
 
-    <!-- GRID -->
+                <div>
 
-    <div
-        id="galleryGrid"
-        class="gallery-grid"
-    ></div>
+                    <span>
+                        OG TEAM
+                    </span>
+
+                    <h2>
+                        Members
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="adminMembersList"
+                class="admin-members-grid"
+            ></div>
+
+
+        </section>
+
+
+
+        <!-- ACTIVITY -->
+
+        <section
+            class="admin-section"
+            data-admin-section="activity"
+        >
+
+
+            <div class="admin-section-title">
+
+                <div>
+
+                    <span>
+                        TIMELINE
+                    </span>
+
+                    <h2>
+                        Activity History
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-filters">
+
+
+                <select id="activityUserFilter">
+
+                    <option value="ALL">
+                        ALL MEMBERS
+                    </option>
+
+                    <option value="SHYAM">
+                        SHYAM
+                    </option>
+
+                    <option value="RAVI">
+                        RAVI
+                    </option>
+
+                    <option value="PRASHANT">
+                        PRASHANT
+                    </option>
+
+                    <option value="NUKS">
+                        NUKS
+                    </option>
+
+                    <option value="PRIYANSHU">
+                        PRIYANSHU
+                    </option>
+
+                </select>
+
+
+
+                <select id="activityTypeFilter">
+
+                    <option value="ALL">
+                        ALL ACTIVITY
+                    </option>
+
+                    <option value="LOGIN">
+                        LOGIN
+                    </option>
+
+                    <option value="OPENED_CHAT">
+                        OPENED CHAT
+                    </option>
+
+                    <option value="OPENED_GALLERY">
+                        OPENED WALL
+                    </option>
+
+                    <option value="OPENED_STUDY">
+                        OPENED STUDY BOARD
+                    </option>
+
+                    <option value="SENT_MESSAGE">
+                        SENT MESSAGE
+                    </option>
+
+                    <option value="SENT_PHOTO">
+                        SENT PHOTO
+                    </option>
+
+                    <option value="SENT_VOICE">
+                        SENT VOICE
+                    </option>
+
+                    <option value="STUDY_POST">
+                        STUDY POST
+                    </option>
+
+                    <option value="DELETED_MESSAGE">
+                        DELETED MESSAGE
+                    </option>
+
+                </select>
+
+
+            </div>
+
+
+
+            <div
+                id="adminActivityList"
+                class="admin-list"
+            ></div>
+
+
+        </section>
+
+
+
+        <!-- DELETED -->
+
+        <section
+            class="admin-section"
+            data-admin-section="deleted"
+        >
+
+
+            <div class="admin-section-title">
+
+                <div>
+
+                    <span>
+                        ARCHIVE
+                    </span>
+
+                    <h2>
+                        Deleted Messages
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-notice">
+
+                Only messages archived by PRSN before deletion
+                will appear here.
+
+            </div>
+
+
+
+            <div
+                id="adminDeletedList"
+                class="admin-list"
+            ></div>
+
+
+        </section>
+
+
+
+        <!-- MEDIA -->
+
+        <section
+            class="admin-section"
+            data-admin-section="media"
+        >
+
+
+            <div class="admin-section-title">
+
+                <div>
+
+                    <span>
+                        FILES
+                    </span>
+
+                    <h2>
+                        Shared Media
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                id="adminMediaList"
+                class="admin-media-grid"
+            ></div>
+
+
+        </section>
+
+
+
+        <!-- STUDY UPLOADS -->
+
+        <section
+            class="admin-section"
+            data-admin-section="study"
+        >
+
+
+            <div class="admin-section-title">
+
+                <div>
+
+                    <span>
+                        STUDY BOARD
+                    </span>
+
+                    <h2>
+                        Study Uploads
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                id="adminStudyList"
+                class="admin-study-grid"
+            ></div>
+
+
+        </section>
+
+
+    </main>
 
 
 </section>
+
+
+
+<!-- =========================================================
+     ONE MUSIC PLAYER FOR DASHBOARD + CHAT
+========================================================= -->
+
+<audio
+    id="bgMusic"
+    loop
+    preload="metadata"
+>
+
+    <source
+        src="song.mp3"
+        type="audio/mpeg"
+    >
+
+</audio>
 
 
 
@@ -1515,16 +3090,6 @@
 ========================================================= -->
 
 <script>
-
-    /*
-        SAME SUPABASE PROJECT.
-
-        Publishable keys are designed to be used
-        by browser clients.
-
-        Actual database/storage permissions must
-        still be controlled through Supabase RLS.
-    */
 
     window.PRSN_CONFIG = {
 
@@ -1541,7 +3106,7 @@
 
 
 <!-- =========================================================
-     SUPABASE LIBRARY
+     SUPABASE JS
 ========================================================= -->
 
 <script
@@ -1551,11 +3116,12 @@
 
 
 <!-- =========================================================
-     MAIN JS
+     MAIN SCRIPT
 ========================================================= -->
 
 <script
     src="script.js"
+    defer
 ></script>
 
 
