@@ -1,398 +1,653 @@
 // ============================================================
-// PRSN — PRIVATE NETWORK
-// MAIN SCRIPT
+// PRSN — THE CHAOS ROOM
+// FINAL SCRIPT.JS
+// Lightweight • Supabase • Realtime • Study Board
 // ============================================================
 
 
 // ============================================================
-// SUPABASE
+// 1. CONFIG
 // ============================================================
 
-const PRSN_CONFIG = window.PRSN_CONFIG || {
-
+const CONFIG = window.PRSN_CONFIG || {
     SUPABASE_URL:
         "https://xvvtzhqyihwgjdzdqkvx.supabase.co",
 
     SUPABASE_PUBLISHABLE_KEY:
         "sb_publishable_Gp8pbf7ciC-QHUhMg6lyzA_WT6UaKoB"
-
 };
 
 
-const supabaseClient =
-    window.supabase.createClient(
-        PRSN_CONFIG.SUPABASE_URL,
-        PRSN_CONFIG.SUPABASE_PUBLISHABLE_KEY
-    );
+const db = window.supabase.createClient(
+    CONFIG.SUPABASE_URL,
+    CONFIG.SUPABASE_PUBLISHABLE_KEY
+);
 
 
 // ============================================================
-// PRSN SETTINGS
+// 2. PRSN SETTINGS
 // ============================================================
 
-const ALLOWED_USERS = [
-    "PRASHANT",
+const MEMBERS = [
     "SHYAM",
     "RAVI",
-    "NUKS"
+    "PRASHANT",
+    "NUKS",
+    "PRIYANSHU"
 ];
 
-const CHAT_CODE =
-    "BACHYO";
+const CHAT_CODE = "BACHYO";
 
-const INITIAL_MESSAGES_LIMIT =
-    50;
 
-const MAX_IMAGE_SIZE =
+// Temporary frontend admin gate.
+// Later Supabase Auth + RLS is better for real security.
+
+const ADMIN_USERNAME = "PRSN_ADMIN";
+const ADMIN_PASSWORD = "BACHYO_ADMIN";
+
+
+const MAX_CHAT_IMAGE_SIZE =
     5 * 1024 * 1024;
 
 const MAX_VOICE_SIZE =
     10 * 1024 * 1024;
 
+const MAX_STUDY_IMAGE_SIZE =
+    8 * 1024 * 1024;
 
-// ============================================================
-// STATE
-// ============================================================
+const MAX_STUDY_VIDEO_SIZE =
+    50 * 1024 * 1024;
 
-let currentUser =
-    null;
-
-let chatName =
-    null;
-
-let chatChannel =
-    null;
-
-let galleryChannel =
-    null;
+const INITIAL_MESSAGES_LIMIT = 60;
 
 
 // ============================================================
-// VOICE STATE
+// 3. APP STATE
 // ============================================================
 
-let mediaRecorder =
-    null;
+let currentUser = null;
 
-let voiceStream =
-    null;
+let chatChannel = null;
+let galleryChannel = null;
+let studyChannel = null;
 
-let voiceChunks =
-    [];
+let studyPostsCache = [];
 
-let voiceRecording =
-    false;
+let currentStudySubject = "ALL";
+let selectedStudyMediaType = "none";
 
-let voiceCancelled =
-    false;
-
-let voiceStartTime =
-    null;
-
-let voiceTimerInterval =
-    null;
-
-let chatMusicWasPlaying =
-    false;
+let bgMusicWasPlaying = false;
 
 
 // ============================================================
-// ELEMENTS
+// 4. VOICE STATE
 // ============================================================
+
+let mediaRecorder = null;
+let voiceStream = null;
+let voiceChunks = [];
+
+let voiceRecording = false;
+
+let voiceStartedAt = 0;
+let voiceTimerInterval = null;
+
+
+// ============================================================
+// 5. ELEMENTS
+// ============================================================
+
+// INTRO
+
+const introScreen =
+    document.getElementById("introScreen");
+
+const enterChaosBtn =
+    document.getElementById("enterChaosBtn");
+
+
+// LOGIN
 
 const nameScreen =
-    document.getElementById(
-        "nameScreen"
-    );
+    document.getElementById("nameScreen");
 
-const dashboard =
-    document.getElementById(
-        "dashboard"
-    );
+const loginBackBtn =
+    document.getElementById("loginBackBtn");
 
 const nameInput =
-    document.getElementById(
-        "nameInput"
-    );
+    document.getElementById("nameInput");
 
 const enterBtn =
-    document.getElementById(
-        "enterBtn"
-    );
+    document.getElementById("enterBtn");
 
 const nameError =
-    document.getElementById(
-        "nameError"
-    );
+    document.getElementById("nameError");
+
+
+// DASHBOARD
+
+const dashboard =
+    document.getElementById("dashboard");
 
 const currentUserElement =
-    document.getElementById(
-        "currentUser"
-    );
+    document.getElementById("currentUser");
 
 const welcomeUser =
-    document.getElementById(
-        "welcomeUser"
-    );
-
-
-const bgMusic =
-    document.getElementById(
-        "bgMusic"
-    );
-
-const chatMusic =
-    document.getElementById(
-        "chatMusic"
-    );
+    document.getElementById("welcomeUser");
 
 const musicBtn =
-    document.getElementById(
-        "musicBtn"
-    );
+    document.getElementById("musicBtn");
 
+const bgMusic =
+    document.getElementById("bgMusic");
+
+
+// CHAT
 
 const chatBtn =
-    document.getElementById(
-        "chatBtn"
-    );
+    document.getElementById("chatBtn");
 
 const chatModal =
-    document.getElementById(
-        "chatModal"
-    );
+    document.getElementById("chatModal");
 
 const closeChat =
-    document.getElementById(
-        "closeChat"
-    );
+    document.getElementById("closeChat");
 
-const chatCodeInput =
-    document.getElementById(
-        "chatCode"
-    );
+const chatCode =
+    document.getElementById("chatCode");
 
 const unlockChat =
-    document.getElementById(
-        "unlockChat"
-    );
+    document.getElementById("unlockChat");
 
 const chatError =
-    document.getElementById(
-        "chatError"
-    );
-
+    document.getElementById("chatError");
 
 const chatScreen =
-    document.getElementById(
-        "chatScreen"
-    );
+    document.getElementById("chatScreen");
 
 const backFromChat =
-    document.getElementById(
-        "backFromChat"
-    );
+    document.getElementById("backFromChat");
 
-const messagesBox =
-    document.getElementById(
-        "messages"
-    );
+const messages =
+    document.getElementById("messages");
 
 const messageInput =
-    document.getElementById(
-        "messageInput"
-    );
+    document.getElementById("messageInput");
 
 const sendMessageBtn =
-    document.getElementById(
-        "sendMessage"
-    );
+    document.getElementById("sendMessage");
 
 const photoInput =
-    document.getElementById(
-        "photoInput"
-    );
+    document.getElementById("photoInput");
 
+
+// VOICE
 
 const voiceRecordBtn =
-    document.getElementById(
-        "voiceRecordBtn"
-    );
+    document.getElementById("voiceRecordBtn");
 
 const voiceStatus =
-    document.getElementById(
-        "voiceStatus"
-    );
+    document.getElementById("voiceStatus");
 
 const voiceStatusText =
-    document.getElementById(
-        "voiceStatusText"
-    );
+    document.getElementById("voiceStatusText");
 
 const voiceTimer =
-    document.getElementById(
-        "voiceTimer"
-    );
+    document.getElementById("voiceTimer");
 
+
+// GALLERY
 
 const galleryBtn =
-    document.getElementById(
-        "galleryBtn"
-    );
+    document.getElementById("galleryBtn");
 
 const galleryScreen =
-    document.getElementById(
-        "galleryScreen"
-    );
+    document.getElementById("galleryScreen");
 
 const backFromGallery =
-    document.getElementById(
-        "backFromGallery"
-    );
+    document.getElementById("backFromGallery");
 
 const galleryInput =
-    document.getElementById(
-        "galleryInput"
-    );
+    document.getElementById("galleryInput");
 
 const galleryGrid =
-    document.getElementById(
-        "galleryGrid"
-    );
+    document.getElementById("galleryGrid");
 
+
+// STUDY BOARD
+
+const studyBtn =
+    document.getElementById("studyBtn");
+
+const studyScreen =
+    document.getElementById("studyScreen");
+
+const backFromStudy =
+    document.getElementById("backFromStudy");
+
+const studyPostCount =
+    document.getElementById("studyPostCount");
+
+const studyPostsGrid =
+    document.getElementById("studyPostsGrid");
+
+const studySearchInput =
+    document.getElementById("studySearchInput");
+
+const studyUploadModal =
+    document.getElementById("studyUploadModal");
+
+const openStudyUploadBtn =
+    document.getElementById("openStudyUploadBtn");
+
+const closeStudyUpload =
+    document.getElementById("closeStudyUpload");
+
+const studySubjectSelect =
+    document.getElementById("studySubjectSelect");
+
+const studyTopicInput =
+    document.getElementById("studyTopicInput");
+
+const studyTitleInput =
+    document.getElementById("studyTitleInput");
+
+const studyTextInput =
+    document.getElementById("studyTextInput");
+
+const studyFileArea =
+    document.getElementById("studyFileArea");
+
+const studyFileInput =
+    document.getElementById("studyFileInput");
+
+const studyFileName =
+    document.getElementById("studyFileName");
+
+const publishStudyPostBtn =
+    document.getElementById("publishStudyPostBtn");
+
+const studyUploadError =
+    document.getElementById("studyUploadError");
+
+
+// ADMIN LOGIN
+
+const adminLoginScreen =
+    document.getElementById("adminLoginScreen");
+
+const adminBackBtn =
+    document.getElementById("adminBackBtn");
+
+const adminUsername =
+    document.getElementById("adminUsername");
+
+const adminPassword =
+    document.getElementById("adminPassword");
+
+const adminLoginBtn =
+    document.getElementById("adminLoginBtn");
+
+const adminLoginError =
+    document.getElementById("adminLoginError");
+
+
+// ADMIN PANEL
+
+const adminPanel =
+    document.getElementById("adminPanel");
+
+const adminRefreshBtn =
+    document.getElementById("adminRefreshBtn");
+
+const adminLogoutBtn =
+    document.getElementById("adminLogoutBtn");
+
+const memberCount =
+    document.getElementById("memberCount");
+
+const onlineCount =
+    document.getElementById("onlineCount");
+
+const activityCount =
+    document.getElementById("activityCount");
+
+const deletedCount =
+    document.getElementById("deletedCount");
+
+const adminStudyCount =
+    document.getElementById("adminStudyCount");
+
+const adminMembersList =
+    document.getElementById("adminMembersList");
+
+const adminActivityList =
+    document.getElementById("adminActivityList");
+
+const adminDeletedList =
+    document.getElementById("adminDeletedList");
+
+const adminMediaList =
+    document.getElementById("adminMediaList");
+
+const adminStudyList =
+    document.getElementById("adminStudyList");
+
+const activityUserFilter =
+    document.getElementById("activityUserFilter");
+
+const activityTypeFilter =
+    document.getElementById("activityTypeFilter");
+
+
+// EFFECTS
 
 const cursorGlow =
-    document.getElementById(
-        "cursorGlow"
-    );
+    document.getElementById("cursorGlow");
 
 
 // ============================================================
-// BASIC HELPERS
+// 6. HELPERS
 // ============================================================
 
 function escapeHTML(value) {
 
     const div =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     div.textContent =
-        String(
-            value ?? ""
-        );
+        String(value ?? "");
 
     return div.innerHTML;
 }
 
 
-function scrollMessagesToBottom() {
+function formatDate(value) {
 
-    if (!messagesBox) {
-        return;
+    if (!value) {
+        return "NEVER";
     }
 
-    messagesBox.scrollTop =
-        messagesBox.scrollHeight;
+    return new Date(value)
+        .toLocaleString([], {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 }
 
 
-function formatMessageTime(
-    date
-) {
+function formatTime(value) {
 
-    return new Date(date)
-        .toLocaleTimeString(
-            [],
-            {
-                hour:
-                    "2-digit",
+    if (!value) {
+        return "";
+    }
 
-                minute:
-                    "2-digit"
-            }
-        );
+    return new Date(value)
+        .toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 }
 
 
-function formatGalleryDate(
-    date
-) {
-
-    return new Date(date)
-        .toLocaleDateString(
-            [],
-            {
-                day:
-                    "2-digit",
-
-                month:
-                    "short",
-
-                year:
-                    "numeric"
-            }
-        );
-}
-
-
-// ============================================================
-// UI MESSAGE
-// ============================================================
-
-function showTemporaryError(
+function showError(
     element,
     text
 ) {
 
-    if (!element) {
-        return;
-    }
+    if (!element) return;
 
-    element.textContent =
-        text;
+    element.textContent = text;
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            if (
-                element.textContent ===
-                text
-            ) {
+        if (
+            element.textContent === text
+        ) {
 
-                element.textContent =
-                    "";
+            element.textContent = "";
+        }
 
-            }
+    }, 3200);
+}
 
-        },
-        3500
+
+function showScreen(screen) {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(item => {
+
+            item.classList.remove(
+                "active"
+            );
+        });
+
+
+    screen?.classList.add(
+        "active"
+    );
+
+
+    requestAnimationFrame(
+        refreshReveals
     );
 }
 
 
+function randomID() {
+
+    return (
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2, 10)
+    );
+}
+
+
+async function signedURL(
+    bucket,
+    path,
+    seconds = 3600
+) {
+
+    if (!path) {
+        return null;
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .storage
+            .from(bucket)
+            .createSignedUrl(
+                path,
+                seconds
+            );
+
+
+    if (error) {
+
+        console.warn(
+            "Signed URL:",
+            error.message
+        );
+
+        return null;
+    }
+
+
+    return data?.signedUrl || null;
+}
+
+
 // ============================================================
-// ENTER PRSN
+// 7. INTRO → LOGIN
+// ============================================================
+
+async function openLogin() {
+
+    enterChaosBtn.disabled = true;
+
+
+    try {
+
+        const animation =
+            introScreen.animate(
+                [
+                    {
+                        opacity: 1,
+                        transform:
+                            "scale(1)"
+                    },
+
+                    {
+                        opacity: 0,
+                        transform:
+                            "scale(1.035)"
+                    }
+                ],
+                {
+                    duration: 420,
+                    easing:
+                        "cubic-bezier(.2,.8,.2,1)",
+                    fill: "forwards"
+                }
+            );
+
+
+        await animation.finished;
+
+    }
+
+    catch (_) {}
+
+
+    introScreen.classList.remove(
+        "active"
+    );
+
+
+    showScreen(
+        nameScreen
+    );
+
+
+    nameScreen.animate(
+        [
+            {
+                opacity: 0,
+                transform:
+                    "translateY(20px)"
+            },
+
+            {
+                opacity: 1,
+                transform:
+                    "translateY(0)"
+            }
+        ],
+        {
+            duration: 420,
+            easing:
+                "cubic-bezier(.2,.8,.2,1)"
+        }
+    );
+
+
+    enterChaosBtn.disabled = false;
+
+
+    setTimeout(
+        () => nameInput.focus(),
+        150
+    );
+}
+
+
+enterChaosBtn.addEventListener(
+    "click",
+    openLogin
+);
+
+
+// ============================================================
+// 8. LOGIN BACK
+// ============================================================
+
+loginBackBtn.addEventListener(
+    "click",
+    () => {
+
+        nameScreen.classList.remove(
+            "active"
+        );
+
+
+        introScreen.classList.add(
+            "active"
+        );
+
+
+        introScreen.animate(
+            [
+                {
+                    opacity: 0
+                },
+                {
+                    opacity: 1
+                }
+            ],
+            {
+                duration: 350,
+                easing: "ease-out"
+            }
+        );
+    }
+);
+
+
+// ============================================================
+// 9. MEMBER LOGIN
 // ============================================================
 
 async function enterPRSN() {
 
-    const typedName =
+    const typed =
         nameInput.value
             .trim()
             .toUpperCase();
 
 
-    nameError.textContent =
-        "";
+    nameError.textContent = "";
 
 
-    if (!typedName) {
+    // ADMIN ROUTE
 
-        showTemporaryError(
+    if (
+        typed === "ADMIN"
+    ) {
+
+        nameInput.value = "";
+
+        openAdminLogin();
+
+        return;
+    }
+
+
+    if (!typed) {
+
+        showError(
             nameError,
-            "ENTER YOUR IDENTITY."
+            "TYPE YOUR NAME."
         );
 
         return;
@@ -400,68 +655,44 @@ async function enterPRSN() {
 
 
     if (
-        !ALLOWED_USERS.includes(
-            typedName
-        )
+        !MEMBERS.includes(typed)
     ) {
 
-        showTemporaryError(
+        showError(
             nameError,
-            "IDENTITY NOT RECOGNIZED."
+            "YOU'RE NOT ON THE LIST."
         );
 
         return;
     }
 
 
-    currentUser =
-        typedName;
-
-    chatName =
-        currentUser;
+    currentUser = typed;
 
 
     currentUserElement.textContent =
         currentUser;
 
+
     welcomeUser.textContent =
         currentUser;
 
 
-    nameScreen.classList.remove(
-        "active"
-    );
-
-    dashboard.classList.add(
-        "active"
+    showScreen(
+        dashboard
     );
 
 
-    if (bgMusic) {
-
-        bgMusic.volume =
-            0.34;
-
-        bgMusic.currentTime =
-            0;
-
-        bgMusic
-            .play()
-            .catch(
-                () => {}
-            );
-
-    }
-
+    await startMusic();
 
     await updateLastSeen();
 
+    await logActivity(
+        "LOGIN",
+        "PRSN"
+    );
 }
 
-
-// ============================================================
-// ENTRY EVENTS
-// ============================================================
 
 enterBtn.addEventListener(
     "click",
@@ -474,43 +705,58 @@ nameInput.addEventListener(
     event => {
 
         if (
-            event.key ===
-            "Enter"
+            event.key === "Enter"
         ) {
 
             enterPRSN();
-
         }
-
     }
 );
 
 
 // ============================================================
-// MUSIC
+// 10. MUSIC
 // ============================================================
+
+async function startMusic() {
+
+    if (!bgMusic) return;
+
+
+    bgMusic.volume = 0.26;
+
+
+    try {
+
+        await bgMusic.play();
+
+        musicBtn.textContent = "♫";
+
+    }
+
+    catch (_) {}
+}
+
 
 musicBtn.addEventListener(
     "click",
-    () => {
+    async () => {
 
-        if (!bgMusic) {
-            return;
-        }
+        if (!bgMusic) return;
 
 
-        if (
-            bgMusic.paused
-        ) {
+        if (bgMusic.paused) {
 
-            bgMusic
-                .play()
-                .catch(
-                    () => {}
-                );
+            try {
 
-            musicBtn.innerHTML =
-                "<span>♫</span>";
+                await bgMusic.play();
+
+                musicBtn.textContent =
+                    "♫";
+
+            }
+
+            catch (_) {}
 
         }
 
@@ -518,50 +764,197 @@ musicBtn.addEventListener(
 
             bgMusic.pause();
 
-            musicBtn.innerHTML =
-                "<span>♪</span>";
-
+            musicBtn.textContent =
+                "♪";
         }
-
     }
 );
 
 
 // ============================================================
-// OPEN CHAT CODE MODAL
+// IMPORTANT:
+//
+// Community Chat mein same bgMusic continue hota hai.
+// Yahan music pause / restart nahi hota.
+// ============================================================
+
+
+// ============================================================
+// 11. LAST SEEN
+// ============================================================
+
+async function updateLastSeen() {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const timestamp =
+        new Date().toISOString();
+
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from("members")
+            .update({
+                last_seen_at:
+                    timestamp
+            })
+            .eq(
+                "name",
+                currentUser
+            )
+            .select("name");
+
+
+    if (error) {
+
+        console.warn(
+            "Last seen update:",
+            error.message
+        );
+
+        return;
+    }
+
+
+    // New member missing from members table?
+    // Try inserting automatically.
+
+    if (
+        Array.isArray(data) &&
+        data.length === 0
+    ) {
+
+        const {
+            error:
+                insertError
+        } =
+            await db
+                .from("members")
+                .insert({
+                    name:
+                        currentUser,
+
+                    last_seen_at:
+                        timestamp
+                });
+
+
+        if (insertError) {
+
+            console.warn(
+                "Member insert:",
+                insertError.message
+            );
+        }
+    }
+}
+
+
+setInterval(() => {
+
+    if (currentUser) {
+
+        updateLastSeen();
+    }
+
+}, 60000);
+
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            document.visibilityState ===
+                "visible" &&
+            currentUser
+        ) {
+
+            updateLastSeen();
+        }
+    }
+);
+
+
+// ============================================================
+// 12. ACTIVITY LOGS
+// ============================================================
+
+async function logActivity(
+    action,
+    section
+) {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const {
+        error
+    } =
+        await db
+            .from("activity_logs")
+            .insert({
+                user_name:
+                    currentUser,
+
+                action,
+
+                section,
+
+                created_at:
+                    new Date()
+                        .toISOString()
+            });
+
+
+    if (error) {
+
+        console.warn(
+            "Activity logging:",
+            error.message
+        );
+    }
+}
+
+
+// ============================================================
+// 13. CHAT MODAL
 // ============================================================
 
 chatBtn.addEventListener(
     "click",
-    () => {
+    async () => {
 
         chatModal.classList.remove(
             "hidden"
         );
 
-        chatCodeInput.value =
-            "";
 
-        chatError.textContent =
-            "";
+        chatCode.value = "";
+        chatError.textContent = "";
+
+
+        await logActivity(
+            "OPENED_CHAT",
+            "COMMUNITY_CHAT"
+        );
 
 
         setTimeout(
-            () => {
-
-                chatCodeInput.focus();
-
-            },
-            150
+            () => chatCode.focus(),
+            100
         );
-
     }
 );
 
-
-// ============================================================
-// CLOSE CHAT MODAL
-// ============================================================
 
 function closeChatModal() {
 
@@ -569,11 +962,8 @@ function closeChatModal() {
         "hidden"
     );
 
-    chatCodeInput.value =
-        "";
-
-    chatError.textContent =
-        "";
+    chatCode.value = "";
+    chatError.textContent = "";
 }
 
 
@@ -593,33 +983,30 @@ chatModal.addEventListener(
         ) {
 
             closeChatModal();
-
         }
-
     }
 );
 
 
 // ============================================================
-// CHAT CODE
+// 14. UNLOCK CHAT
 // ============================================================
 
 async function unlockPrivateChat() {
 
     const code =
-        chatCodeInput.value
+        chatCode.value
             .trim()
             .toUpperCase();
 
 
     if (
-        code !==
-        CHAT_CODE
+        code !== CHAT_CODE
     ) {
 
-        showTemporaryError(
+        showError(
             chatError,
-            "ACCESS CODE REJECTED."
+            "WRONG CODEWORD."
         );
 
         return;
@@ -629,40 +1016,9 @@ async function unlockPrivateChat() {
     closeChatModal();
 
 
-    chatName =
-        currentUser;
+    // MUSIC KEEPS PLAYING.
+    // NO PAUSE. NO RESTART.
 
-
-    if (bgMusic) {
-
-        bgMusic.pause();
-
-        bgMusic.currentTime =
-            0;
-
-    }
-
-
-    if (chatMusic) {
-
-        chatMusic.volume =
-            0.28;
-
-        chatMusic.currentTime =
-            0;
-
-        chatMusic
-            .play()
-            .catch(
-                () => {}
-            );
-
-    }
-
-
-    dashboard.classList.remove(
-        "active"
-    );
 
     chatScreen.classList.remove(
         "hidden"
@@ -675,14 +1031,9 @@ async function unlockPrivateChat() {
 
 
     setTimeout(
-        () => {
-
-            messageInput.focus();
-
-        },
-        150
+        () => messageInput.focus(),
+        120
     );
-
 }
 
 
@@ -692,37 +1043,31 @@ unlockChat.addEventListener(
 );
 
 
-chatCodeInput.addEventListener(
+chatCode.addEventListener(
     "keydown",
     event => {
 
         if (
-            event.key ===
-            "Enter"
+            event.key === "Enter"
         ) {
 
             unlockPrivateChat();
-
         }
-
     }
 );
 
 
 // ============================================================
-// BACK FROM CHAT
+// 15. BACK FROM CHAT
 // ============================================================
 
 backFromChat.addEventListener(
     "click",
-    async () => {
+    () => {
 
-        if (
-            voiceRecording
-        ) {
+        if (voiceRecording) {
 
-            await cancelVoiceRecording();
-
+            stopVoiceRecording();
         }
 
 
@@ -730,52 +1075,24 @@ backFromChat.addEventListener(
             "hidden"
         );
 
-        dashboard.classList.add(
-            "active"
-        );
 
-
-        if (chatMusic) {
-
-            chatMusic.pause();
-
-            chatMusic.currentTime =
-                0;
-
-        }
-
-
-        chatMusicWasPlaying =
-            false;
-
-
-        if (bgMusic) {
-
-            bgMusic.currentTime =
-                0;
-
-            bgMusic
-                .play()
-                .catch(
-                    () => {}
-                );
-
-        }
-
+        // Music continues.
     }
 );
 
 
 // ============================================================
-// LOAD MESSAGES
+// 16. LOAD MESSAGES
 // ============================================================
 
 async function loadMessages() {
 
-    messagesBox.innerHTML = `
+    messages.innerHTML = `
+
         <div class="gallery-loading">
-            LOADING PRIVATE CONVERSATION...
+            LOADING CHAT...
         </div>
+
     `;
 
 
@@ -783,24 +1100,15 @@ async function loadMessages() {
         data,
         error
     } =
-        await supabaseClient
-
-            .from(
-                "messages"
-            )
-
-            .select(
-                "*"
-            )
-
+        await db
+            .from("messages")
+            .select("*")
             .order(
                 "created_at",
                 {
-                    ascending:
-                        false
+                    ascending: false
                 }
             )
-
             .limit(
                 INITIAL_MESSAGES_LIMIT
             );
@@ -808,124 +1116,99 @@ async function loadMessages() {
 
     if (error) {
 
-        console.error(
-            "Message loading error:",
-            error
-        );
+        console.error(error);
 
-        messagesBox.innerHTML = `
+        messages.innerHTML = `
+
             <div class="gallery-loading">
-                MESSAGES COULD NOT LOAD
+                CHAT UNAVAILABLE
             </div>
+
         `;
 
         return;
     }
 
 
-    const orderedMessages =
-        [...data]
-            .reverse();
+    const ordered =
+        [...data].reverse();
 
 
-    const elements =
+    const rendered =
         await Promise.all(
-
-            orderedMessages.map(
-                message =>
-                    createMessageElement(
-                        message
-                    )
+            ordered.map(
+                createMessageElement
             )
-
         );
 
 
-    messagesBox.innerHTML =
-        "";
+    messages.innerHTML = "";
 
 
     const fragment =
-        document
-            .createDocumentFragment();
+        document.createDocumentFragment();
 
 
-    elements.forEach(
-        element => {
+    rendered.forEach(item => {
 
-            if (element) {
+        if (item) {
 
-                fragment
-                    .appendChild(
-                        element
-                    );
-
-            }
-
+            fragment.appendChild(item);
         }
-    );
+    });
 
 
-    messagesBox.appendChild(
+    messages.appendChild(
         fragment
     );
 
 
     requestAnimationFrame(
-        scrollMessagesToBottom
+        scrollChatBottom
     );
+}
 
+
+function scrollChatBottom() {
+
+    messages.scrollTop =
+        messages.scrollHeight;
 }
 
 
 // ============================================================
-// CREATE MESSAGE
+// 17. CREATE MESSAGE ELEMENT
 // ============================================================
 
 async function createMessageElement(
     message
 ) {
 
-    const div =
+    const element =
         document.createElement(
             "div"
         );
 
 
-    const isMine =
+    const mine =
         message.sender_name ===
-        chatName;
+        currentUser;
 
 
-    div.className =
-        isMine
+    element.className =
+        mine
             ? "message mine"
             : "message";
 
 
-    div.dataset.messageId =
+    element.dataset.messageId =
         message.id;
 
 
-    const nameHTML =
-        escapeHTML(
-            message.sender_name
-        );
+    let content = "";
 
 
-    const time =
-        formatMessageTime(
-            message.created_at
-        );
-
-
-    let contentHTML =
-        "";
-
-
-    // ========================================================
-    // IMAGE MESSAGE
-    // ========================================================
+    // IMAGE
 
     if (
         message.message_type ===
@@ -933,34 +1216,20 @@ async function createMessageElement(
         message.file_path
     ) {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-
-                .storage
-
-                .from(
-                    "chat-images"
-                )
-
-                .createSignedUrl(
-                    message.file_path,
-                    3600
-                );
+        const url =
+            await signedURL(
+                "chat-images",
+                message.file_path
+            );
 
 
-        if (
-            !error &&
-            data
-        ) {
+        if (url) {
 
-            contentHTML = `
+            content = `
 
                 <img
-                    src="${data.signedUrl}"
                     class="message-image"
+                    src="${url}"
                     loading="lazy"
                     alt="Shared photo"
                 >
@@ -971,22 +1240,18 @@ async function createMessageElement(
 
         else {
 
-            contentHTML = `
+            content = `
 
                 <div class="message-text">
                     PHOTO UNAVAILABLE
                 </div>
 
             `;
-
         }
-
     }
 
 
-    // ========================================================
-    // VOICE MESSAGE
-    // ========================================================
+    // VOICE
 
     else if (
         message.message_type ===
@@ -994,30 +1259,16 @@ async function createMessageElement(
         message.file_path
     ) {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-
-                .storage
-
-                .from(
-                    "chat-voice"
-                )
-
-                .createSignedUrl(
-                    message.file_path,
-                    3600
-                );
+        const url =
+            await signedURL(
+                "chat-voice",
+                message.file_path
+            );
 
 
-        if (
-            !error &&
-            data
-        ) {
+        if (url) {
 
-            contentHTML = `
+            content = `
 
                 <div class="voice-message">
 
@@ -1029,7 +1280,7 @@ async function createMessageElement(
                         class="voice-audio"
                         controls
                         preload="metadata"
-                        src="${data.signedUrl}"
+                        src="${url}"
                     ></audio>
 
                 </div>
@@ -1040,160 +1291,171 @@ async function createMessageElement(
 
         else {
 
-            contentHTML = `
+            content = `
 
                 <div class="message-text">
                     VOICE UNAVAILABLE
                 </div>
 
             `;
-
         }
-
     }
 
 
-    // ========================================================
-    // TEXT MESSAGE
-    // ========================================================
+    // TEXT
 
     else {
 
-        contentHTML = `
+        content = `
 
             <div class="message-text">
-
                 ${escapeHTML(
-                    message.message ||
-                    ""
+                    message.message
                 )}
-
             </div>
 
         `;
-
     }
 
 
-    // ========================================================
-    // DELETE MENU
-    // ========================================================
-
-    let deleteHTML =
-        "";
-
-
-    if (isMine) {
-
-        deleteHTML = `
-
-            <button
-                class="message-delete-btn"
-                type="button"
-                title="Message options"
-            >
-                •••
-            </button>
-
-            <div
-                class="message-delete-menu hidden"
-            >
+    const deleteMenu =
+        mine
+            ? `
 
                 <button
-                    class="delete-action"
+                    class="message-delete-btn"
                     type="button"
                 >
-                    DELETE MESSAGE
+                    •••
                 </button>
 
-            </div>
+                <div
+                    class="message-delete-menu hidden"
+                >
 
-        `;
+                    <button
+                        class="delete-action"
+                        type="button"
+                    >
+                        DELETE MESSAGE
+                    </button>
 
-    }
+                </div>
+
+            `
+            : "";
 
 
-    // ========================================================
-    // FINAL MESSAGE HTML
-    // ========================================================
-
-    div.innerHTML = `
+    element.innerHTML = `
 
         <div class="message-top-row">
 
             <div class="message-name">
-                ${nameHTML}
+
+                ${escapeHTML(
+                    message.sender_name
+                )}
+
             </div>
 
-            ${deleteHTML}
+            ${deleteMenu}
 
         </div>
 
-        ${contentHTML}
+        ${content}
 
         <div class="message-time">
-            ${time}
+
+            ${formatTime(
+                message.created_at
+            )}
+
         </div>
 
     `;
 
 
-// ============================================================
-// IMAGE OPEN
-// ============================================================
+    // IMAGE OPEN
 
-    const image =
-        div.querySelector(
+    element
+        .querySelector(
             ".message-image"
-        );
-
-
-    if (image) {
-
-        image.addEventListener(
+        )
+        ?.addEventListener(
             "click",
-            () => {
+            event => {
 
                 window.open(
-                    image.src,
+                    event.currentTarget.src,
                     "_blank"
                 );
-
             }
         );
 
+
+    // VOICE MUSIC DUCKING
+
+    const audio =
+        element.querySelector(
+            ".voice-audio"
+        );
+
+
+    if (audio) {
+
+        audio.addEventListener(
+            "play",
+            pauseMusicForVoice
+        );
+
+
+        audio.addEventListener(
+            "pause",
+            () => {
+
+                if (
+                    audio.currentTime <
+                    audio.duration
+                ) {
+
+                    resumeMusicAfterVoice();
+                }
+            }
+        );
+
+
+        audio.addEventListener(
+            "ended",
+            resumeMusicAfterVoice
+        );
     }
 
 
-// ============================================================
-// DELETE MENU EVENTS
-// ============================================================
+    // DELETE
 
-    const deleteBtn =
-        div.querySelector(
+    const menuButton =
+        element.querySelector(
             ".message-delete-btn"
         );
 
-
-    const deleteMenu =
-        div.querySelector(
+    const menu =
+        element.querySelector(
             ".message-delete-menu"
         );
 
-
-    const deleteAction =
-        div.querySelector(
+    const deleteButton =
+        element.querySelector(
             ".delete-action"
         );
 
 
     if (
-        deleteBtn &&
-        deleteMenu &&
-        deleteAction
+        menuButton &&
+        menu &&
+        deleteButton
     ) {
 
-        deleteBtn.addEventListener(
+        menuButton.addEventListener(
             "click",
             event => {
 
@@ -1204,57 +1466,39 @@ async function createMessageElement(
                     .querySelectorAll(
                         ".message-delete-menu"
                     )
-                    .forEach(
-                        menu => {
+                    .forEach(item => {
 
-                            if (
-                                menu !==
-                                deleteMenu
-                            ) {
-
-                                menu
-                                    .classList
-                                    .add(
-                                        "hidden"
-                                    );
-
-                            }
-
-                        }
-                    );
+                        item.classList.add(
+                            "hidden"
+                        );
+                    });
 
 
-                deleteMenu
-                    .classList
-                    .toggle(
-                        "hidden"
-                    );
-
+                menu.classList.toggle(
+                    "hidden"
+                );
             }
         );
 
 
-        deleteAction.addEventListener(
+        deleteButton.addEventListener(
             "click",
             async event => {
 
                 event.stopPropagation();
 
 
-                deleteMenu
-                    .classList
-                    .add(
-                        "hidden"
-                    );
+                menu.classList.add(
+                    "hidden"
+                );
 
 
-                const confirmed =
-                    confirm(
+                if (
+                    !confirm(
                         "Delete this message?"
-                    );
+                    )
+                ) {
 
-
-                if (!confirmed) {
                     return;
                 }
 
@@ -1262,74 +1506,17 @@ async function createMessageElement(
                 await deleteMessage(
                     message
                 );
-
             }
         );
-
     }
 
 
-// ============================================================
-// VOICE PLAYER MUSIC CONTROL
-// ============================================================
-
-    const voiceAudio =
-        div.querySelector(
-            ".voice-audio"
-        );
-
-
-    if (voiceAudio) {
-
-        voiceAudio.addEventListener(
-            "play",
-            () => {
-
-                pauseChatMusicForVoice();
-
-            }
-        );
-
-
-        voiceAudio.addEventListener(
-            "pause",
-            () => {
-
-                if (
-                    Number.isFinite(
-                        voiceAudio.duration
-                    ) &&
-                    voiceAudio.currentTime <
-                    voiceAudio.duration
-                ) {
-
-                    resumeChatMusicAfterVoice();
-
-                }
-
-            }
-        );
-
-
-        voiceAudio.addEventListener(
-            "ended",
-            () => {
-
-                resumeChatMusicAfterVoice();
-
-            }
-        );
-
-    }
-
-
-    return div;
-
+    return element;
 }
 
 
 // ============================================================
-// DISPLAY REALTIME MESSAGE
+// 18. DISPLAY REALTIME MESSAGE
 // ============================================================
 
 async function displayMessage(
@@ -1343,7 +1530,6 @@ async function displayMessage(
     ) {
 
         return;
-
     }
 
 
@@ -1353,69 +1539,45 @@ async function displayMessage(
         );
 
 
-    if (!element) {
-        return;
-    }
-
-
-    messagesBox.appendChild(
+    messages.appendChild(
         element
     );
 
 
-    scrollMessagesToBottom();
-
+    scrollChatBottom();
 }
 
 
 // ============================================================
-// SEND TEXT MESSAGE
+// 19. SEND TEXT
 // ============================================================
 
 async function sendMessage() {
 
     const text =
-        messageInput.value
-            .trim();
+        messageInput.value.trim();
 
 
     if (
         !text ||
-        !chatName
+        !currentUser
     ) {
 
         return;
-
     }
 
 
-    sendMessageBtn.disabled =
-        true;
-
-
-    const originalText =
-        sendMessageBtn.innerHTML;
-
-
-    sendMessageBtn.innerHTML = `
-        <span>SENDING</span>
-        <span>•</span>
-    `;
+    sendMessageBtn.disabled = true;
 
 
     const {
         error
     } =
-        await supabaseClient
-
-            .from(
-                "messages"
-            )
-
+        await db
+            .from("messages")
             .insert({
-
                 sender_name:
-                    chatName,
+                    currentUser,
 
                 message:
                     text,
@@ -1425,24 +1587,15 @@ async function sendMessage() {
 
                 file_path:
                     null
-
             });
 
 
-    sendMessageBtn.disabled =
-        false;
-
-
-    sendMessageBtn.innerHTML =
-        originalText;
+    sendMessageBtn.disabled = false;
 
 
     if (error) {
 
-        console.error(
-            "Message send error:",
-            error
-        );
+        console.error(error);
 
         alert(
             "Message send nahi hua."
@@ -1452,12 +1605,13 @@ async function sendMessage() {
     }
 
 
-    messageInput.value =
-        "";
+    messageInput.value = "";
 
 
-    messageInput.focus();
-
+    await logActivity(
+        "SENT_MESSAGE",
+        "COMMUNITY_CHAT"
+    );
 }
 
 
@@ -1472,24 +1626,224 @@ messageInput.addEventListener(
     event => {
 
         if (
-            event.key ===
-                "Enter" &&
+            event.key === "Enter" &&
             !event.shiftKey
         ) {
 
             event.preventDefault();
 
             sendMessage();
-
         }
-
     }
 );
 
 
 // ============================================================
-// DELETE MESSAGE
+// 20. CHAT IMAGE
 // ============================================================
+
+photoInput.addEventListener(
+    "change",
+    async event => {
+
+        const file =
+            event.target.files?.[0];
+
+
+        if (!file) return;
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            alert(
+                "Image file select kar."
+            );
+
+            photoInput.value = "";
+
+            return;
+        }
+
+
+        if (
+            file.size >
+            MAX_CHAT_IMAGE_SIZE
+        ) {
+
+            alert(
+                "Photo 5MB se chhoti honi chahiye."
+            );
+
+            photoInput.value = "";
+
+            return;
+        }
+
+
+        try {
+
+            const extension =
+                (
+                    file.name
+                        .split(".")
+                        .pop() ||
+                    "jpg"
+                )
+                    .toLowerCase();
+
+
+            const path =
+                "chat/" +
+                randomID() +
+                "." +
+                extension;
+
+
+            const {
+                error:
+                    uploadError
+            } =
+                await db
+                    .storage
+                    .from(
+                        "chat-images"
+                    )
+                    .upload(
+                        path,
+                        file,
+                        {
+                            contentType:
+                                file.type,
+
+                            upsert:
+                                false
+                        }
+                    );
+
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+
+            const {
+                error:
+                    insertError
+            } =
+                await db
+                    .from("messages")
+                    .insert({
+                        sender_name:
+                            currentUser,
+
+                        message:
+                            "Photo",
+
+                        message_type:
+                            "image",
+
+                        file_path:
+                            path
+                    });
+
+
+            if (insertError) {
+
+                await db
+                    .storage
+                    .from(
+                        "chat-images"
+                    )
+                    .remove([path]);
+
+
+                throw insertError;
+            }
+
+
+            await logActivity(
+                "SENT_PHOTO",
+                "COMMUNITY_CHAT"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Photo upload nahi hui."
+            );
+        }
+
+
+        photoInput.value = "";
+    }
+);
+
+
+// ============================================================
+// 21. MESSAGE DELETE ARCHIVE
+// ============================================================
+
+async function archiveDeletedMessage(
+    message
+) {
+
+    const {
+        error
+    } =
+        await db
+            .from(
+                "deleted_messages"
+            )
+            .insert({
+                original_message_id:
+                    message.id,
+
+                sender_name:
+                    message.sender_name,
+
+                message:
+                    message.message,
+
+                message_type:
+                    message.message_type,
+
+                file_path:
+                    message.file_path,
+
+                original_created_at:
+                    message.created_at,
+
+                deleted_at:
+                    new Date()
+                        .toISOString(),
+
+                deleted_by:
+                    currentUser
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Archive:",
+            error
+        );
+
+        return false;
+    }
+
+
+    return true;
+}
+
 
 async function deleteMessage(
     message
@@ -1497,25 +1851,35 @@ async function deleteMessage(
 
     if (
         message.sender_name !==
-        chatName
+        currentUser
     ) {
 
         return;
+    }
 
+
+    const archived =
+        await archiveDeletedMessage(
+            message
+        );
+
+
+    if (!archived) {
+
+        alert(
+            "Archive system ready nahi hai, isliye message safely delete nahi kiya."
+        );
+
+        return;
     }
 
 
     const {
         error
     } =
-        await supabaseClient
-
-            .from(
-                "messages"
-            )
-
+        await db
+            .from("messages")
             .delete()
-
             .eq(
                 "id",
                 message.id
@@ -1524,10 +1888,7 @@ async function deleteMessage(
 
     if (error) {
 
-        console.error(
-            "Delete message error:",
-            error
-        );
+        console.error(error);
 
         alert(
             "Message delete nahi hua."
@@ -1537,323 +1898,179 @@ async function deleteMessage(
     }
 
 
-    const element =
-        document.querySelector(
+    document
+        .querySelector(
             `[data-message-id="${message.id}"]`
-        );
+        )
+        ?.remove();
 
 
-    if (element) {
-
-        element.remove();
-
-    }
-
-
-    if (
-        message.file_path &&
-        message.message_type ===
-            "image"
-    ) {
-
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "chat-images"
-            )
-
-            .remove([
-                message.file_path
-            ]);
-
-    }
-
-
-    if (
-        message.file_path &&
-        message.message_type ===
-            "voice"
-    ) {
-
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "chat-voice"
-            )
-
-            .remove([
-                message.file_path
-            ]);
-
-    }
-
+    await logActivity(
+        "DELETED_MESSAGE",
+        "COMMUNITY_CHAT"
+    );
 }
 
 
 // ============================================================
-// PHOTO INPUT
+// 22. REALTIME CHAT
 // ============================================================
 
-photoInput.addEventListener(
-    "change",
-    async event => {
+function startRealtimeChat() {
 
-        const file =
-            event.target
-                .files[0];
+    if (chatChannel) {
+        return;
+    }
 
 
-        if (!file) {
-            return;
-        }
+    chatChannel =
+        db
+            .channel(
+                "prsn-chat-live"
+            )
 
+
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages"
+                },
+
+                async payload => {
+
+                    await displayMessage(
+                        payload.new
+                    );
+                }
+            )
+
+
+            .on(
+                "postgres_changes",
+                {
+                    event: "DELETE",
+                    schema: "public",
+                    table: "messages"
+                },
+
+                payload => {
+
+                    document
+                        .querySelector(
+                            `[data-message-id="${payload.old.id}"]`
+                        )
+                        ?.remove();
+                }
+            )
+
+
+            .subscribe();
+}
+
+
+// ============================================================
+// 23. CLOSE DELETE MENUS
+// ============================================================
+
+document.addEventListener(
+    "click",
+    event => {
 
         if (
-            !file.type
-                .startsWith(
-                    "image/"
-                )
+            event.target.closest(
+                ".message-delete-btn"
+            ) ||
+            event.target.closest(
+                ".message-delete-menu"
+            )
         ) {
-
-            alert(
-                "Sirf image select kar."
-            );
-
-            photoInput.value =
-                "";
 
             return;
         }
 
 
-        if (
-            file.size >
-            MAX_IMAGE_SIZE
-        ) {
+        document
+            .querySelectorAll(
+                ".message-delete-menu"
+            )
+            .forEach(item => {
 
-            alert(
-                "Photo 5MB se chhoti honi chahiye."
-            );
-
-            photoInput.value =
-                "";
-
-            return;
-        }
-
-
-        try {
-
-            await sendPhoto(
-                file
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Photo error:",
-                error
-            );
-
-            alert(
-                "Photo send nahi hui."
-            );
-
-        }
-
-
-        photoInput.value =
-            "";
-
+                item.classList.add(
+                    "hidden"
+                );
+            });
     }
 );
 
 
 // ============================================================
-// SEND PHOTO
+// 24. VOICE MUSIC HELPERS
 // ============================================================
 
-async function sendPhoto(
-    file
-) {
+function pauseMusicForVoice() {
 
-    if (!chatName) {
-        return;
+    if (!bgMusic) return;
+
+
+    bgMusicWasPlaying =
+        !bgMusic.paused;
+
+
+    if (bgMusicWasPlaying) {
+
+        bgMusic.pause();
     }
-
-
-    const extension =
-        (
-            file.name
-                .split(".")
-                .pop() ||
-            "jpg"
-        )
-            .toLowerCase();
-
-
-    const safeFileName =
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2) +
-        "." +
-        extension;
-
-
-    const filePath =
-        "chat/" +
-        safeFileName;
-
-
-    const {
-        error:
-            uploadError
-    } =
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "chat-images"
-            )
-
-            .upload(
-                filePath,
-                file,
-                {
-
-                    cacheControl:
-                        "3600",
-
-                    contentType:
-                        file.type,
-
-                    upsert:
-                        false
-
-                }
-            );
-
-
-    if (uploadError) {
-
-        throw uploadError;
-
-    }
-
-
-    const {
-        error:
-            dbError
-    } =
-        await supabaseClient
-
-            .from(
-                "messages"
-            )
-
-            .insert({
-
-                sender_name:
-                    chatName,
-
-                message:
-                    "Photo",
-
-                message_type:
-                    "image",
-
-                file_path:
-                    filePath
-
-            });
-
-
-    if (dbError) {
-
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "chat-images"
-            )
-
-            .remove([
-                filePath
-            ]);
-
-
-        throw dbError;
-
-    }
-
 }
 
 
-// ============================================================
-// CHAT MUSIC / VOICE
-// ============================================================
-
-function pauseChatMusicForVoice() {
-
-    if (!chatMusic) {
-        return;
-    }
-
-
-    chatMusicWasPlaying =
-        !chatMusic.paused;
-
+async function resumeMusicAfterVoice() {
 
     if (
-        chatMusicWasPlaying
+        bgMusic &&
+        bgMusicWasPlaying
     ) {
 
-        chatMusic.pause();
+        try {
 
-    }
+            await bgMusic.play();
 
-}
+        }
 
-
-function resumeChatMusicAfterVoice() {
-
-    if (
-        chatMusicWasPlaying &&
-        chatMusic
-    ) {
-
-        chatMusic
-            .play()
-            .catch(
-                () => {}
-            );
-
+        catch (_) {}
     }
 
 
-    chatMusicWasPlaying =
-        false;
-
+    bgMusicWasPlaying = false;
 }
 
 
 // ============================================================
-// VOICE EVENTS
+// 25. VOICE RECORDING
 // ============================================================
 
 voiceRecordBtn.addEventListener(
     "pointerdown",
-    startVoiceRecording
+    async event => {
+
+        event.preventDefault();
+
+
+        try {
+
+            voiceRecordBtn
+                .setPointerCapture(
+                    event.pointerId
+                );
+
+        }
+
+        catch (_) {}
+
+
+        await startVoiceRecording();
+    }
 );
 
 
@@ -1864,95 +2081,54 @@ voiceRecordBtn.addEventListener(
 
 
 voiceRecordBtn.addEventListener(
-    "pointerleave",
-    () => {
-
-        if (
-            voiceRecording
-        ) {
-
-            stopVoiceRecording();
-
-        }
-
-    }
-);
-
-
-voiceRecordBtn.addEventListener(
     "pointercancel",
-    () => {
-
-        if (
-            voiceRecording
-        ) {
-
-            cancelVoiceRecording();
-
-        }
-
-    }
+    stopVoiceRecording
 );
 
 
 voiceRecordBtn.addEventListener(
     "contextmenu",
-    event => {
-
-        event.preventDefault();
-
-    }
+    event =>
+        event.preventDefault()
 );
 
 
-// ============================================================
-// START VOICE RECORDING
-// ============================================================
-
-async function startVoiceRecording(
-    event
-) {
-
-    event.preventDefault();
-
+async function startVoiceRecording() {
 
     if (
         voiceRecording ||
-        !chatName
+        !currentUser
     ) {
 
         return;
-
     }
 
 
     if (
-        !navigator.mediaDevices ||
         !navigator.mediaDevices
-            .getUserMedia
+            ?.getUserMedia ||
+        typeof MediaRecorder ===
+            "undefined"
     ) {
 
         alert(
-            "Microphone supported nahi hai."
+            "Voice recording supported nahi hai."
         );
 
         return;
     }
 
 
-    pauseChatMusicForVoice();
+    pauseMusicForVoice();
 
 
     try {
 
         voiceStream =
             await navigator
-
                 .mediaDevices
-
                 .getUserMedia({
-                    audio:
-                        true
+                    audio: true
                 });
 
 
@@ -1961,31 +2137,24 @@ async function startVoiceRecording(
 
 
         if (
-            typeof MediaRecorder !==
-                "undefined" &&
-            MediaRecorder
-                .isTypeSupported(
-                    "audio/webm;codecs=opus"
-                )
+            MediaRecorder.isTypeSupported(
+                "audio/webm;codecs=opus"
+            )
         ) {
 
             mimeType =
                 "audio/webm;codecs=opus";
-
         }
 
+
         else if (
-            typeof MediaRecorder !==
-                "undefined" &&
-            MediaRecorder
-                .isTypeSupported(
-                    "audio/mp4"
-                )
+            MediaRecorder.isTypeSupported(
+                "audio/mp4"
+            )
         ) {
 
             mimeType =
                 "audio/mp4";
-
         }
 
 
@@ -1998,16 +2167,11 @@ async function startVoiceRecording(
             );
 
 
-        voiceChunks =
-            [];
+        voiceChunks = [];
 
-        voiceCancelled =
-            false;
+        voiceRecording = true;
 
-        voiceRecording =
-            true;
-
-        voiceStartTime =
+        voiceStartedAt =
             Date.now();
 
 
@@ -2016,17 +2180,13 @@ async function startVoiceRecording(
             event => {
 
                 if (
-                    event.data &&
-                    event.data.size >
-                        0
+                    event.data?.size
                 ) {
 
                     voiceChunks.push(
                         event.data
                     );
-
                 }
-
             }
         );
 
@@ -2035,9 +2195,8 @@ async function startVoiceRecording(
             "stop",
             async () => {
 
-                const finalType =
-                    mediaRecorder
-                        .mimeType ||
+                const type =
+                    mediaRecorder.mimeType ||
                     mimeType;
 
 
@@ -2045,31 +2204,20 @@ async function startVoiceRecording(
                     new Blob(
                         voiceChunks,
                         {
-                            type:
-                                finalType
+                            type
                         }
                     );
 
 
-                const cancelled =
-                    voiceCancelled;
-
-
-                cleanupVoiceUI();
+                cleanVoiceUI();
 
                 stopVoiceStream();
 
-                resumeChatMusicAfterVoice();
+                await resumeMusicAfterVoice();
 
 
-                if (
-                    cancelled ||
-                    blob.size ===
-                        0
-                ) {
-
+                if (!blob.size) {
                     return;
-
                 }
 
 
@@ -2077,24 +2225,19 @@ async function startVoiceRecording(
 
                     await uploadVoice(
                         blob,
-                        finalType
+                        type
                     );
 
                 }
 
                 catch (error) {
 
-                    console.error(
-                        "Voice upload error:",
-                        error
-                    );
+                    console.error(error);
 
                     alert(
-                        "Voice send nahi hui."
+                        "Voice message send nahi hua."
                     );
-
                 }
-
             }
         );
 
@@ -2112,14 +2255,6 @@ async function startVoiceRecording(
         );
 
 
-        voiceStatusText.textContent =
-            "Recording...";
-
-
-        voiceTimer.textContent =
-            "0:00";
-
-
         updateVoiceTimer();
 
 
@@ -2133,31 +2268,21 @@ async function startVoiceRecording(
 
     catch (error) {
 
-        console.error(
-            "Microphone error:",
-            error
-        );
-
+        console.error(error);
 
         stopVoiceStream();
 
-        cleanupVoiceUI();
+        cleanVoiceUI();
 
-        resumeChatMusicAfterVoice();
+        await resumeMusicAfterVoice();
 
 
         alert(
-            "Microphone permission allow karni padegi."
+            "Microphone permission allow kar."
         );
-
     }
-
 }
 
-
-// ============================================================
-// STOP VOICE
-// ============================================================
 
 function stopVoiceRecording() {
 
@@ -2167,21 +2292,14 @@ function stopVoiceRecording() {
     ) {
 
         return;
-
     }
 
 
-    voiceRecording =
-        false;
+    voiceRecording = false;
 
 
     voiceStatusText.textContent =
         "Sending...";
-
-
-    voiceRecordBtn.classList.remove(
-        "recording"
-    );
 
 
     if (
@@ -2190,60 +2308,87 @@ function stopVoiceRecording() {
     ) {
 
         mediaRecorder.stop();
-
     }
+}
 
+
+function updateVoiceTimer() {
+
+    const seconds =
+        Math.floor(
+            (
+                Date.now() -
+                voiceStartedAt
+            ) /
+            1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const remaining =
+        seconds % 60;
+
+
+    voiceTimer.textContent =
+        `${minutes}:${String(
+            remaining
+        ).padStart(2, "0")}`;
+}
+
+
+function cleanVoiceUI() {
+
+    clearInterval(
+        voiceTimerInterval
+    );
+
+
+    voiceTimerInterval = null;
+
+    voiceRecording = false;
+
+    voiceStartedAt = 0;
+
+
+    voiceStatus.classList.add(
+        "hidden"
+    );
+
+
+    voiceRecordBtn.classList.remove(
+        "recording"
+    );
+
+
+    voiceStatusText.textContent =
+        "Recording...";
+
+
+    voiceTimer.textContent =
+        "0:00";
+}
+
+
+function stopVoiceStream() {
+
+    voiceStream
+        ?.getTracks()
+        .forEach(
+            track => track.stop()
+        );
+
+
+    voiceStream = null;
 }
 
 
 // ============================================================
-// CANCEL VOICE
-// ============================================================
-
-function cancelVoiceRecording() {
-
-    if (
-        !voiceRecording
-    ) {
-
-        return;
-
-    }
-
-
-    voiceCancelled =
-        true;
-
-    voiceRecording =
-        false;
-
-
-    if (
-        mediaRecorder &&
-        mediaRecorder.state !==
-            "inactive"
-    ) {
-
-        mediaRecorder.stop();
-
-    }
-
-
-    else {
-
-        cleanupVoiceUI();
-
-        stopVoiceStream();
-
-        resumeChatMusicAfterVoice();
-
-    }
-
-}
-
-
-// ============================================================
-// UPLOAD VOICE
+// 26. UPLOAD VOICE
 // ============================================================
 
 async function uploadVoice(
@@ -2264,99 +2409,53 @@ async function uploadVoice(
     }
 
 
-    let extension =
-        "webm";
+    const extension =
+        mimeType.includes("mp4")
+            ? "m4a"
+            : "webm";
 
 
-    if (
-        mimeType.includes(
-            "mp4"
-        )
-    ) {
-
-        extension =
-            "m4a";
-
-    }
-
-    else if (
-        mimeType.includes(
-            "ogg"
-        )
-    ) {
-
-        extension =
-            "ogg";
-
-    }
-
-
-    const fileName =
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2) +
+    const path =
+        "voice/" +
+        randomID() +
         "." +
         extension;
-
-
-    const filePath =
-        "voice/" +
-        fileName;
 
 
     const {
         error:
             uploadError
     } =
-        await supabaseClient
-
+        await db
             .storage
-
-            .from(
-                "chat-voice"
-            )
-
+            .from("chat-voice")
             .upload(
-                filePath,
+                path,
                 blob,
                 {
-
-                    cacheControl:
-                        "3600",
-
                     contentType:
                         mimeType,
 
                     upsert:
                         false
-
                 }
             );
 
 
     if (uploadError) {
-
         throw uploadError;
-
     }
 
 
     const {
         error:
-            dbError
+            insertError
     } =
-        await supabaseClient
-
-            .from(
-                "messages"
-            )
-
+        await db
+            .from("messages")
             .insert({
-
                 sender_name:
-                    chatName,
+                    currentUser,
 
                 message:
                     "Voice message",
@@ -2365,380 +2464,56 @@ async function uploadVoice(
                     "voice",
 
                 file_path:
-                    filePath
-
+                    path
             });
 
 
-    if (dbError) {
+    if (insertError) {
 
-        await supabaseClient
-
+        await db
             .storage
-
             .from(
                 "chat-voice"
             )
-
-            .remove([
-                filePath
-            ]);
+            .remove([path]);
 
 
-        throw dbError;
-
-    }
-
-}
-
-
-// ============================================================
-// VOICE TIMER
-// ============================================================
-
-function updateVoiceTimer() {
-
-    if (
-        !voiceStartTime
-    ) {
-
-        return;
-
+        throw insertError;
     }
 
 
-    const elapsed =
-        Math.floor(
-
-            (
-                Date.now() -
-                voiceStartTime
-            )
-
-            / 1000
-
-        );
-
-
-    const minutes =
-        Math.floor(
-            elapsed /
-            60
-        );
-
-
-    const seconds =
-        elapsed %
-        60;
-
-
-    voiceTimer.textContent =
-        minutes +
-        ":" +
-        String(seconds)
-            .padStart(
-                2,
-                "0"
-            );
-
-}
-
-
-// ============================================================
-// CLEAN VOICE UI
-// ============================================================
-
-function cleanupVoiceUI() {
-
-    clearInterval(
-        voiceTimerInterval
+    await logActivity(
+        "SENT_VOICE",
+        "COMMUNITY_CHAT"
     );
-
-
-    voiceTimerInterval =
-        null;
-
-    voiceRecording =
-        false;
-
-    voiceStartTime =
-        null;
-
-
-    voiceStatus.classList.add(
-        "hidden"
-    );
-
-
-    voiceRecordBtn.classList.remove(
-        "recording"
-    );
-
-
-    voiceStatusText.textContent =
-        "Recording...";
-
-
-    voiceTimer.textContent =
-        "0:00";
-
 }
 
 
 // ============================================================
-// STOP MICROPHONE STREAM
-// ============================================================
-
-function stopVoiceStream() {
-
-    if (
-        !voiceStream
-    ) {
-
-        return;
-
-    }
-
-
-    voiceStream
-
-        .getTracks()
-
-        .forEach(
-            track => {
-
-                track.stop();
-
-            }
-        );
-
-
-    voiceStream =
-        null;
-
-}
-
-
-// ============================================================
-// REALTIME CHAT
-// ============================================================
-
-function startRealtimeChat() {
-
-    if (
-        chatChannel
-    ) {
-
-        return;
-
-    }
-
-
-    chatChannel =
-        supabaseClient
-
-            .channel(
-                "prsn-private-network"
-            )
-
-
-            .on(
-
-                "postgres_changes",
-
-                {
-
-                    event:
-                        "INSERT",
-
-                    schema:
-                        "public",
-
-                    table:
-                        "messages"
-
-                },
-
-                async payload => {
-
-                    await displayMessage(
-                        payload.new
-                    );
-
-                }
-
-            )
-
-
-            .on(
-
-                "postgres_changes",
-
-                {
-
-                    event:
-                        "DELETE",
-
-                    schema:
-                        "public",
-
-                    table:
-                        "messages"
-
-                },
-
-                payload => {
-
-                    const element =
-                        document
-                            .querySelector(
-                                `[data-message-id="${payload.old.id}"]`
-                            );
-
-
-                    if (
-                        element
-                    ) {
-
-                        element.remove();
-
-                    }
-
-                }
-
-            )
-
-
-            .subscribe(
-                status => {
-
-                    console.log(
-                        "PRSN CHAT:",
-                        status
-                    );
-
-                }
-            );
-
-}
-
-
-// ============================================================
-// LAST SEEN
-// ============================================================
-
-async function updateLastSeen() {
-
-    if (
-        !currentUser
-    ) {
-
-        return;
-
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-
-            .from(
-                "members"
-            )
-
-            .update({
-
-                last_seen_at:
-                    new Date()
-                        .toISOString()
-
-            })
-
-            .eq(
-                "name",
-                currentUser
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Last seen error:",
-            error
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// LAST SEEN HEARTBEAT
-// ============================================================
-
-setInterval(
-    () => {
-
-        if (
-            currentUser
-        ) {
-
-            updateLastSeen();
-
-        }
-
-    },
-    60000
-);
-
-
-document.addEventListener(
-    "visibilitychange",
-    () => {
-
-        if (
-            !document.hidden &&
-            currentUser
-        ) {
-
-            updateLastSeen();
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// OPEN AMAZING WALL
+// 27. AMAZING WALL
 // ============================================================
 
 galleryBtn.addEventListener(
     "click",
     async () => {
 
-        dashboard.classList.remove(
-            "active"
+        galleryScreen.classList.remove(
+            "hidden"
         );
 
 
-        galleryScreen.classList.remove(
-            "hidden"
+        await logActivity(
+            "OPENED_GALLERY",
+            "AMAZING_WALL"
         );
 
 
         await loadGallery();
 
         startRealtimeGallery();
-
     }
 );
 
-
-// ============================================================
-// BACK FROM GALLERY
-// ============================================================
 
 backFromGallery.addEventListener(
     "click",
@@ -2747,18 +2522,12 @@ backFromGallery.addEventListener(
         galleryScreen.classList.add(
             "hidden"
         );
-
-
-        dashboard.classList.add(
-            "active"
-        );
-
     }
 );
 
 
 // ============================================================
-// LOAD GALLERY
+// 28. LOAD GALLERY
 // ============================================================
 
 async function loadGallery() {
@@ -2766,7 +2535,7 @@ async function loadGallery() {
     galleryGrid.innerHTML = `
 
         <div class="gallery-loading">
-            LOADING PRSN ARCHIVE...
+            LOADING MEMORIES...
         </div>
 
     `;
@@ -2776,58 +2545,50 @@ async function loadGallery() {
         data,
         error
     } =
-        await supabaseClient
-
+        await db
             .from(
                 "gallery_photos"
             )
-
-            .select(
-                "*"
-            )
-
+            .select("*")
             .order(
                 "created_at",
                 {
-                    ascending:
-                        false
+                    ascending: false
                 }
             );
 
 
     if (error) {
 
-        console.error(
-            "Gallery load error:",
-            error
-        );
-
+        console.error(error);
 
         galleryGrid.innerHTML = `
 
             <div class="gallery-loading">
-                ARCHIVE COULD NOT LOAD
+                WALL UNAVAILABLE
             </div>
 
         `;
-
 
         return;
     }
 
 
-    galleryGrid.innerHTML =
-        "";
+    galleryGrid.innerHTML = "";
 
 
-    if (
-        !data.length
-    ) {
+    if (!data.length) {
 
         galleryGrid.innerHTML = `
 
-            <div class="gallery-loading">
-                NO MEMORIES YET
+            <div class="empty-state">
+
+                <span>◫</span>
+
+                <strong>
+                    NO MEMORIES YET
+                </strong>
+
             </div>
 
         `;
@@ -2844,18 +2605,17 @@ async function loadGallery() {
         await displayGalleryPhoto(
             photo
         );
-
     }
-
 }
 
 
 // ============================================================
-// DISPLAY GALLERY PHOTO
+// 29. DISPLAY GALLERY PHOTO
 // ============================================================
 
 async function displayGalleryPhoto(
-    photo
+    photo,
+    prepend = false
 ) {
 
     if (
@@ -2865,40 +2625,17 @@ async function displayGalleryPhoto(
     ) {
 
         return;
-
     }
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "prsn-gallery"
-            )
-
-            .createSignedUrl(
-                photo.image_path,
-                3600
-            );
-
-
-    if (
-        error ||
-        !data
-    ) {
-
-        console.error(
-            "Gallery signed URL error:",
-            error
+    const url =
+        await signedURL(
+            "prsn-gallery",
+            photo.image_path
         );
 
-        return;
-    }
+
+    if (!url) return;
 
 
     const card =
@@ -2915,76 +2652,77 @@ async function displayGalleryPhoto(
         photo.id;
 
 
-    const date =
-        formatGalleryDate(
-            photo.created_at
-        );
-
-
     card.innerHTML = `
 
         <div class="gallery-image-wrap">
 
             <img
-                src="${data.signedUrl}"
+                src="${url}"
                 class="gallery-image"
-                alt="PRSN memory"
                 loading="lazy"
+                alt="PRSN memory"
             >
 
         </div>
 
-
         <div class="gallery-info">
 
-            <div class="gallery-uploader">
+            <span class="gallery-uploader">
 
                 ${escapeHTML(
                     photo.uploader_name
                 )}
 
-            </div>
+            </span>
 
+            <span class="gallery-date">
 
-            <div class="gallery-date">
+                ${escapeHTML(
+                    formatDate(
+                        photo.created_at
+                    )
+                )}
 
-                ${date}
-
-            </div>
+            </span>
 
         </div>
 
     `;
 
 
-    const image =
-        card.querySelector(
+    card
+        .querySelector(
             ".gallery-image"
+        )
+        .addEventListener(
+            "click",
+            () =>
+                window.open(
+                    url,
+                    "_blank"
+                )
         );
 
 
-    image.addEventListener(
-        "click",
-        () => {
+    if (prepend) {
 
-            window.open(
-                data.signedUrl,
-                "_blank"
-            );
+        galleryGrid.prepend(
+            card
+        );
 
-        }
-    );
+    }
 
+    else {
 
-    galleryGrid.appendChild(
-        card
-    );
-
+        galleryGrid.appendChild(
+            card
+        );
+    }
 }
 
 
 // ============================================================
-// GALLERY PHOTO INPUT
+// 30. GALLERY UPLOAD
 // ============================================================
 
 galleryInput.addEventListener(
@@ -2992,28 +2730,23 @@ galleryInput.addEventListener(
     async event => {
 
         const file =
-            event.target
-                .files[0];
+            event.target.files?.[0];
 
 
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
 
         if (
-            !file.type
-                .startsWith(
-                    "image/"
-                )
+            !file.type.startsWith(
+                "image/"
+            )
         ) {
 
             alert(
-                "Sirf image upload kar."
+                "Image file select kar."
             );
 
-            galleryInput.value =
-                "";
+            galleryInput.value = "";
 
             return;
         }
@@ -3021,15 +2754,14 @@ galleryInput.addEventListener(
 
         if (
             file.size >
-            MAX_IMAGE_SIZE
+            MAX_CHAT_IMAGE_SIZE
         ) {
 
             alert(
                 "Photo 5MB se chhoti honi chahiye."
             );
 
-            galleryInput.value =
-                "";
+            galleryInput.value = "";
 
             return;
         }
@@ -3037,418 +2769,2523 @@ galleryInput.addEventListener(
 
         try {
 
-            await uploadGalleryPhoto(
-                file
+            const extension =
+                (
+                    file.name
+                        .split(".")
+                        .pop() ||
+                    "jpg"
+                )
+                    .toLowerCase();
+
+
+            const path =
+                "wall/" +
+                randomID() +
+                "." +
+                extension;
+
+
+            const {
+                error:
+                    uploadError
+            } =
+                await db
+                    .storage
+                    .from(
+                        "prsn-gallery"
+                    )
+                    .upload(
+                        path,
+                        file,
+                        {
+                            contentType:
+                                file.type,
+
+                            upsert:
+                                false
+                        }
+                    );
+
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+
+            const {
+                error:
+                    insertError
+            } =
+                await db
+                    .from(
+                        "gallery_photos"
+                    )
+                    .insert({
+                        uploader_name:
+                            currentUser,
+
+                        image_path:
+                            path,
+
+                        caption:
+                            null
+                    });
+
+
+            if (insertError) {
+
+                await db
+                    .storage
+                    .from(
+                        "prsn-gallery"
+                    )
+                    .remove([path]);
+
+
+                throw insertError;
+            }
+
+
+            await logActivity(
+                "SENT_PHOTO",
+                "AMAZING_WALL"
             );
-
-
-            await loadGallery();
 
         }
 
         catch (error) {
 
-            console.error(
-                "Gallery upload error:",
-                error
-            );
-
+            console.error(error);
 
             alert(
-                "Photo upload nahi hui."
+                "Memory upload nahi hui."
             );
-
         }
 
 
-        galleryInput.value =
-            "";
-
+        galleryInput.value = "";
     }
 );
 
 
 // ============================================================
-// UPLOAD GALLERY PHOTO
-// ============================================================
-
-async function uploadGalleryPhoto(
-    file
-) {
-
-    if (
-        !currentUser
-    ) {
-
-        return;
-
-    }
-
-
-    const extension =
-        (
-            file.name
-                .split(".")
-                .pop() ||
-            "jpg"
-        )
-            .toLowerCase();
-
-
-    const fileName =
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2) +
-        "." +
-        extension;
-
-
-    const filePath =
-        "wall/" +
-        fileName;
-
-
-    const {
-        error:
-            uploadError
-    } =
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "prsn-gallery"
-            )
-
-            .upload(
-                filePath,
-                file,
-                {
-
-                    cacheControl:
-                        "3600",
-
-                    contentType:
-                        file.type,
-
-                    upsert:
-                        false
-
-                }
-            );
-
-
-    if (
-        uploadError
-    ) {
-
-        throw uploadError;
-
-    }
-
-
-    const {
-        error:
-            dbError
-    } =
-        await supabaseClient
-
-            .from(
-                "gallery_photos"
-            )
-
-            .insert({
-
-                uploader_name:
-                    currentUser,
-
-                image_path:
-                    filePath,
-
-                caption:
-                    null
-
-            });
-
-
-    if (
-        dbError
-    ) {
-
-        await supabaseClient
-
-            .storage
-
-            .from(
-                "prsn-gallery"
-            )
-
-            .remove([
-                filePath
-            ]);
-
-
-        throw dbError;
-
-    }
-
-}
-
-
-// ============================================================
-// REALTIME GALLERY
+// 31. REALTIME GALLERY
 // ============================================================
 
 function startRealtimeGallery() {
 
-    if (
-        galleryChannel
-    ) {
-
+    if (galleryChannel) {
         return;
-
     }
 
 
     galleryChannel =
-        supabaseClient
-
+        db
             .channel(
-                "prsn-archive"
+                "prsn-gallery-live"
             )
-
-
             .on(
-
                 "postgres_changes",
-
                 {
-
-                    event:
-                        "INSERT",
-
-                    schema:
-                        "public",
-
+                    event: "INSERT",
+                    schema: "public",
                     table:
                         "gallery_photos"
-
                 },
 
                 async payload => {
 
                     if (
-                        galleryScreen
+                        !galleryScreen
                             .classList
                             .contains(
                                 "hidden"
                             )
                     ) {
 
-                        return;
-
+                        await displayGalleryPhoto(
+                            payload.new,
+                            true
+                        );
                     }
-
-
-                    await displayGalleryPhoto(
-                        payload.new
-                    );
-
                 }
-
             )
-
-
-            .subscribe(
-                status => {
-
-                    console.log(
-                        "PRSN WALL:",
-                        status
-                    );
-
-                }
-            );
-
+            .subscribe();
 }
 
 
 // ============================================================
-// DELETE MENU GLOBAL CLOSE
+// 32. STUDY BOARD OPEN
 // ============================================================
 
-document.addEventListener(
+studyBtn.addEventListener(
+    "click",
+    async () => {
+
+        studyScreen.classList.remove(
+            "hidden"
+        );
+
+
+        await logActivity(
+            "OPENED_STUDY",
+            "STUDY_BOARD"
+        );
+
+
+        await loadStudyPosts();
+
+        startRealtimeStudy();
+    }
+);
+
+
+backFromStudy.addEventListener(
+    "click",
+    () => {
+
+        studyScreen.classList.add(
+            "hidden"
+        );
+    }
+);
+
+
+// ============================================================
+// 33. LOAD STUDY POSTS
+// ============================================================
+
+async function loadStudyPosts() {
+
+    studyPostsGrid.innerHTML = `
+
+        <div class="empty-state">
+
+            <span>✎</span>
+
+            <strong>
+                LOADING STUDY BOARD...
+            </strong>
+
+        </div>
+
+    `;
+
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from("study_posts")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.warn(
+            "Study Board:",
+            error.message
+        );
+
+
+        studyPostsGrid.innerHTML = `
+
+            <div class="empty-state">
+
+                <span>!</span>
+
+                <strong>
+                    STUDY BOARD DATABASE
+                    NOT READY
+                </strong>
+
+            </div>
+
+        `;
+
+
+        studyPostCount.textContent =
+            "0";
+
+
+        return;
+    }
+
+
+    studyPostsCache =
+        data || [];
+
+
+    studyPostCount.textContent =
+        studyPostsCache.length;
+
+
+    renderStudyPosts();
+}
+
+
+// ============================================================
+// 34. STUDY FILTERS
+// ============================================================
+
+document
+    .querySelectorAll(
+        ".subject-tab"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                document
+                    .querySelectorAll(
+                        ".subject-tab"
+                    )
+                    .forEach(tab => {
+
+                        tab.classList.remove(
+                            "active"
+                        );
+                    });
+
+
+                button.classList.add(
+                    "active"
+                );
+
+
+                currentStudySubject =
+                    button.dataset.subject;
+
+
+                renderStudyPosts();
+            }
+        );
+    });
+
+
+studySearchInput.addEventListener(
+    "input",
+    renderStudyPosts
+);
+
+
+document
+    .querySelectorAll(
+        "#recentTopics button"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                studySearchInput.value =
+                    button.dataset.topic ||
+                    button.textContent.trim();
+
+
+                renderStudyPosts();
+            }
+        );
+    });
+
+
+// ============================================================
+// 35. RENDER STUDY POSTS
+// ============================================================
+
+async function renderStudyPosts() {
+
+    const query =
+        studySearchInput.value
+            .trim()
+            .toUpperCase();
+
+
+    const filtered =
+        studyPostsCache.filter(
+            post => {
+
+                const subjectMatch =
+                    currentStudySubject ===
+                        "ALL" ||
+                    post.subject ===
+                        currentStudySubject;
+
+
+                const text =
+                    [
+                        post.subject,
+                        post.topic,
+                        post.title,
+                        post.notes,
+                        post.uploader_name
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toUpperCase();
+
+
+                const searchMatch =
+                    !query ||
+                    text.includes(query);
+
+
+                return (
+                    subjectMatch &&
+                    searchMatch
+                );
+            }
+        );
+
+
+    if (!filtered.length) {
+
+        studyPostsGrid.innerHTML = `
+
+            <div class="empty-state">
+
+                <span>✎</span>
+
+                <strong>
+                    NO STUDY POSTS FOUND
+                </strong>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    studyPostsGrid.innerHTML = "";
+
+
+    const cards =
+        await Promise.all(
+            filtered.map(
+                createStudyPostCard
+            )
+        );
+
+
+    cards.forEach(card => {
+
+        if (card) {
+
+            studyPostsGrid.appendChild(
+                card
+            );
+        }
+    });
+}
+
+
+// ============================================================
+// 36. CREATE STUDY CARD
+// ============================================================
+
+async function createStudyPostCard(
+    post
+) {
+
+    const card =
+        document.createElement(
+            "article"
+        );
+
+
+    card.className =
+        "study-post-card";
+
+
+    card.dataset.studyId =
+        post.id;
+
+
+    let mediaHTML = "";
+
+
+    if (
+        post.media_type ===
+            "image" &&
+        post.file_path
+    ) {
+
+        const url =
+            await signedURL(
+                "study-board",
+                post.file_path
+            );
+
+
+        if (url) {
+
+            mediaHTML = `
+
+                <div class="study-post-media">
+
+                    <img
+                        src="${url}"
+                        loading="lazy"
+                        alt="Study material"
+                    >
+
+                </div>
+
+            `;
+        }
+    }
+
+
+    else if (
+        post.media_type ===
+            "video" &&
+        post.file_path
+    ) {
+
+        const url =
+            await signedURL(
+                "study-board",
+                post.file_path
+            );
+
+
+        if (url) {
+
+            mediaHTML = `
+
+                <div class="study-post-media">
+
+                    <video
+                        controls
+                        preload="metadata"
+                        src="${url}"
+                    ></video>
+
+                </div>
+
+            `;
+        }
+    }
+
+
+    const notes =
+        post.notes
+            ? `
+
+                <p class="study-post-text">
+
+                    ${escapeHTML(
+                        post.notes
+                    )}
+
+                </p>
+
+            `
+            : "";
+
+
+    card.innerHTML = `
+
+        ${mediaHTML}
+
+        <div class="study-post-content">
+
+            <div class="study-post-meta">
+
+                <span class="study-post-subject">
+
+                    ${escapeHTML(
+                        post.subject
+                    )}
+
+                </span>
+
+                <span class="study-post-author">
+
+                    BY
+                    ${escapeHTML(
+                        post.uploader_name
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <div class="study-post-topic">
+
+                ${escapeHTML(
+                    post.topic
+                )}
+
+            </div>
+
+
+            <h3 class="study-post-title">
+
+                ${escapeHTML(
+                    post.title
+                )}
+
+            </h3>
+
+
+            ${notes}
+
+
+            <span class="study-post-date">
+
+                ${escapeHTML(
+                    formatDate(
+                        post.created_at
+                    )
+                )}
+
+            </span>
+
+        </div>
+
+    `;
+
+
+    return card;
+}
+
+
+// ============================================================
+// 37. OPEN STUDY UPLOAD
+// ============================================================
+
+openStudyUploadBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!currentUser) return;
+
+
+        resetStudyForm();
+
+
+        studyUploadModal.classList.remove(
+            "hidden"
+        );
+
+
+        setTimeout(
+            () =>
+                studySubjectSelect.focus(),
+            100
+        );
+    }
+);
+
+
+closeStudyUpload.addEventListener(
+    "click",
+    () => {
+
+        studyUploadModal.classList.add(
+            "hidden"
+        );
+    }
+);
+
+
+studyUploadModal.addEventListener(
     "click",
     event => {
 
         if (
-            !event.target.closest(
-                ".message-delete-btn"
-            ) &&
-            !event.target.closest(
-                ".message-delete-menu"
-            )
+            event.target ===
+            studyUploadModal
         ) {
 
-            document
-                .querySelectorAll(
-                    ".message-delete-menu"
-                )
-                .forEach(
-                    menu => {
+            studyUploadModal.classList.add(
+                "hidden"
+            );
+        }
+    }
+);
 
-                        menu
-                            .classList
-                            .add(
-                                "hidden"
-                            );
 
-                    }
+// ============================================================
+// 38. STUDY MEDIA TYPE
+// ============================================================
+
+document
+    .querySelectorAll(
+        ".media-type-btn"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                document
+                    .querySelectorAll(
+                        ".media-type-btn"
+                    )
+                    .forEach(item => {
+
+                        item.classList.remove(
+                            "active"
+                        );
+                    });
+
+
+                button.classList.add(
+                    "active"
                 );
 
-        }
 
-    }
-);
-
-
-// ============================================================
-// ESC KEY
-// ============================================================
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key !==
-            "Escape"
-        ) {
-
-            return;
-
-        }
+                selectedStudyMediaType =
+                    button.dataset.studyType;
 
 
-        if (
-            !chatModal
-                .classList
-                .contains(
-                    "hidden"
-                )
-        ) {
+                studyFileInput.value = "";
 
-            closeChatModal();
-
-        }
-
-    }
-);
+                studyFileName.textContent =
+                    "No file selected";
 
 
-// ============================================================
-// CURSOR GLOW
-// ============================================================
+                if (
+                    selectedStudyMediaType ===
+                    "none"
+                ) {
 
-function initCursorGlow() {
+                    studyFileArea.classList.add(
+                        "hidden"
+                    );
 
-    if (
-        !cursorGlow ||
-        window.matchMedia(
-            "(pointer: coarse)"
-        ).matches
-    ) {
+                }
 
-        return;
+                else {
 
-    }
-
-
-    let targetX =
-        window.innerWidth /
-        2;
-
-    let targetY =
-        window.innerHeight /
-        2;
-
-    let currentX =
-        targetX;
-
-    let currentY =
-        targetY;
+                    studyFileArea.classList.remove(
+                        "hidden"
+                    );
 
 
-    window.addEventListener(
-        "pointermove",
-        event => {
-
-            targetX =
-                event.clientX;
-
-            targetY =
-                event.clientY;
-
-        },
-        {
-            passive:
-                true
-        }
-    );
-
-
-    function animateGlow() {
-
-        currentX +=
-            (
-                targetX -
-                currentX
-            )
-            * .12;
-
-
-        currentY +=
-            (
-                targetY -
-                currentY
-            )
-            * .12;
-
-
-        cursorGlow.style.left =
-            currentX +
-            "px";
-
-
-        cursorGlow.style.top =
-            currentY +
-            "px";
-
-
-        requestAnimationFrame(
-            animateGlow
+                    studyFileInput.accept =
+                        selectedStudyMediaType ===
+                            "image"
+                            ? "image/*"
+                            : "video/*";
+                }
+            }
         );
+    });
 
+
+studyFileInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            studyFileInput.files?.[0];
+
+
+        studyFileName.textContent =
+            file
+                ? file.name
+                : "No file selected";
     }
+);
 
 
-    animateGlow();
+// ============================================================
+// 39. RESET STUDY FORM
+// ============================================================
 
+function resetStudyForm() {
+
+    studySubjectSelect.value = "";
+    studyTopicInput.value = "";
+    studyTitleInput.value = "";
+    studyTextInput.value = "";
+
+    studyFileInput.value = "";
+
+    studyFileName.textContent =
+        "No file selected";
+
+    studyUploadError.textContent = "";
+
+    selectedStudyMediaType =
+        "none";
+
+
+    document
+        .querySelectorAll(
+            ".media-type-btn"
+        )
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.studyType ===
+                    "none"
+            );
+        });
+
+
+    studyFileArea.classList.add(
+        "hidden"
+    );
 }
 
 
 // ============================================================
-// PREMIUM 3D CARDS
+// 40. PUBLISH STUDY POST
 // ============================================================
 
-function initTiltCards() {
+publishStudyPostBtn.addEventListener(
+    "click",
+    publishStudyPost
+);
+
+
+async function publishStudyPost() {
+
+    if (!currentUser) return;
+
+
+    const subject =
+        studySubjectSelect.value
+            .trim()
+            .toUpperCase();
+
+
+    const topic =
+        studyTopicInput.value
+            .trim();
+
+
+    const title =
+        studyTitleInput.value
+            .trim();
+
+
+    const notes =
+        studyTextInput.value
+            .trim();
+
+
+    const file =
+        studyFileInput.files?.[0] ||
+        null;
+
+
+    if (!subject) {
+
+        showError(
+            studyUploadError,
+            "SELECT A SUBJECT."
+        );
+
+        return;
+    }
+
+
+    if (!topic) {
+
+        showError(
+            studyUploadError,
+            "ENTER A TOPIC."
+        );
+
+        return;
+    }
+
+
+    if (!title) {
+
+        showError(
+            studyUploadError,
+            "ENTER A TITLE."
+        );
+
+        return;
+    }
+
+
+    if (
+        selectedStudyMediaType ===
+            "none" &&
+        !notes
+    ) {
+
+        showError(
+            studyUploadError,
+            "WRITE SOME NOTES."
+        );
+
+        return;
+    }
+
+
+    if (
+        selectedStudyMediaType !==
+            "none" &&
+        !file
+    ) {
+
+        showError(
+            studyUploadError,
+            "SELECT A FILE."
+        );
+
+        return;
+    }
+
+
+    if (
+        selectedStudyMediaType ===
+            "image"
+    ) {
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            showError(
+                studyUploadError,
+                "SELECT AN IMAGE."
+            );
+
+            return;
+        }
+
+
+        if (
+            file.size >
+            MAX_STUDY_IMAGE_SIZE
+        ) {
+
+            showError(
+                studyUploadError,
+                "IMAGE MAX 8MB."
+            );
+
+            return;
+        }
+    }
+
+
+    if (
+        selectedStudyMediaType ===
+            "video"
+    ) {
+
+        if (
+            !file.type.startsWith(
+                "video/"
+            )
+        ) {
+
+            showError(
+                studyUploadError,
+                "SELECT A VIDEO."
+            );
+
+            return;
+        }
+
+
+        if (
+            file.size >
+            MAX_STUDY_VIDEO_SIZE
+        ) {
+
+            showError(
+                studyUploadError,
+                "VIDEO MAX 50MB."
+            );
+
+            return;
+        }
+    }
+
+
+    publishStudyPostBtn.disabled =
+        true;
+
+
+    publishStudyPostBtn
+        .querySelector("span")
+        .textContent =
+            "UPLOADING...";
+
+
+    let uploadedPath = null;
+
+
+    try {
+
+        if (
+            selectedStudyMediaType !==
+            "none"
+        ) {
+
+            const extension =
+                (
+                    file.name
+                        .split(".")
+                        .pop() ||
+                    (
+                        selectedStudyMediaType ===
+                            "image"
+                            ? "jpg"
+                            : "mp4"
+                    )
+                )
+                    .toLowerCase();
+
+
+            uploadedPath =
+                "study/" +
+                subject.toLowerCase() +
+                "/" +
+                randomID() +
+                "." +
+                extension;
+
+
+            const {
+                error:
+                    uploadError
+            } =
+                await db
+                    .storage
+                    .from(
+                        "study-board"
+                    )
+                    .upload(
+                        uploadedPath,
+                        file,
+                        {
+                            contentType:
+                                file.type,
+
+                            cacheControl:
+                                "3600",
+
+                            upsert:
+                                false
+                        }
+                    );
+
+
+            if (uploadError) {
+                throw uploadError;
+            }
+        }
+
+
+        const {
+            error:
+                insertError
+        } =
+            await db
+                .from("study_posts")
+                .insert({
+                    uploader_name:
+                        currentUser,
+
+                    subject,
+
+                    topic,
+
+                    title,
+
+                    notes:
+                        notes || null,
+
+                    media_type:
+                        selectedStudyMediaType,
+
+                    file_path:
+                        uploadedPath
+                });
+
+
+        if (insertError) {
+
+            if (uploadedPath) {
+
+                await db
+                    .storage
+                    .from(
+                        "study-board"
+                    )
+                    .remove([
+                        uploadedPath
+                    ]);
+            }
+
+
+            throw insertError;
+        }
+
+
+        await logActivity(
+            "STUDY_POST",
+            "STUDY_BOARD"
+        );
+
+
+        studyUploadModal.classList.add(
+            "hidden"
+        );
+
+
+        resetStudyForm();
+
+
+        await loadStudyPosts();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        showError(
+            studyUploadError,
+            "UPLOAD FAILED."
+        );
+
+    }
+
+    finally {
+
+        publishStudyPostBtn.disabled =
+            false;
+
+
+        publishStudyPostBtn
+            .querySelector("span")
+            .textContent =
+                "PUBLISH TO STUDY BOARD";
+    }
+}
+
+
+// ============================================================
+// 41. REALTIME STUDY BOARD
+// ============================================================
+
+function startRealtimeStudy() {
+
+    if (studyChannel) {
+        return;
+    }
+
+
+    studyChannel =
+        db
+            .channel(
+                "prsn-study-live"
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "study_posts"
+                },
+
+                async () => {
+
+                    if (
+                        !studyScreen
+                            .classList
+                            .contains(
+                                "hidden"
+                            )
+                    ) {
+
+                        await loadStudyPosts();
+                    }
+                }
+            )
+            .subscribe();
+}
+
+
+// ============================================================
+// 42. ADMIN LOGIN
+// ============================================================
+
+function openAdminLogin() {
+
+    if (
+        sessionStorage.getItem(
+            "prsn_admin"
+        ) === "true"
+    ) {
+
+        openAdminPanel();
+
+        return;
+    }
+
+
+    showScreen(
+        adminLoginScreen
+    );
+
+
+    adminUsername.value = "";
+    adminPassword.value = "";
+    adminLoginError.textContent = "";
+
+
+    setTimeout(
+        () =>
+            adminUsername.focus(),
+        100
+    );
+}
+
+
+adminBackBtn.addEventListener(
+    "click",
+    () => {
+
+        showScreen(
+            nameScreen
+        );
+
+
+        setTimeout(
+            () =>
+                nameInput.focus(),
+            100
+        );
+    }
+);
+
+
+function loginAdmin() {
+
+    const username =
+        adminUsername.value.trim();
+
+    const password =
+        adminPassword.value;
+
+
+    if (
+        username !==
+            ADMIN_USERNAME ||
+        password !==
+            ADMIN_PASSWORD
+    ) {
+
+        showError(
+            adminLoginError,
+            "ACCESS DENIED."
+        );
+
+        return;
+    }
+
+
+    sessionStorage.setItem(
+        "prsn_admin",
+        "true"
+    );
+
+
+    openAdminPanel();
+}
+
+
+adminLoginBtn.addEventListener(
+    "click",
+    loginAdmin
+);
+
+
+adminUsername.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            adminPassword.focus();
+        }
+    }
+);
+
+
+adminPassword.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            loginAdmin();
+        }
+    }
+);
+
+
+// ============================================================
+// 43. ADMIN PANEL
+// ============================================================
+
+function openAdminPanel() {
+
+    showScreen(
+        adminPanel
+    );
+
+
+    loadAdminDashboard();
+}
+
+
+adminRefreshBtn.addEventListener(
+    "click",
+    loadAdminDashboard
+);
+
+
+adminLogoutBtn.addEventListener(
+    "click",
+    () => {
+
+        sessionStorage.removeItem(
+            "prsn_admin"
+        );
+
+
+        showScreen(
+            nameScreen
+        );
+
+
+        nameInput.value = "";
+    }
+);
+
+
+// ============================================================
+// 44. ADMIN TABS
+// ============================================================
+
+document
+    .querySelectorAll(
+        ".admin-tab"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const tab =
+                    button.dataset.adminTab;
+
+
+                document
+                    .querySelectorAll(
+                        ".admin-tab"
+                    )
+                    .forEach(item => {
+
+                        item.classList.remove(
+                            "active"
+                        );
+                    });
+
+
+                button.classList.add(
+                    "active"
+                );
+
+
+                document
+                    .querySelectorAll(
+                        ".admin-section"
+                    )
+                    .forEach(section => {
+
+                        section.classList.remove(
+                            "active"
+                        );
+                    });
+
+
+                document
+                    .querySelector(
+                        `[data-admin-section="${tab}"]`
+                    )
+                    ?.classList
+                    .add(
+                        "active"
+                    );
+            }
+        );
+    });
+
+
+// ============================================================
+// 45. LOAD ADMIN DASHBOARD
+// ============================================================
+
+async function loadAdminDashboard() {
+
+    adminRefreshBtn.disabled = true;
+
+
+    try {
+
+        await Promise.all([
+            loadAdminMembers(),
+            loadAdminActivity(),
+            loadAdminDeleted(),
+            loadAdminMedia(),
+            loadAdminStudy()
+        ]);
+
+    }
+
+    finally {
+
+        adminRefreshBtn.disabled =
+            false;
+    }
+}
+
+
+// ============================================================
+// 46. ADMIN MEMBERS
+// ============================================================
+
+async function loadAdminMembers() {
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from("members")
+            .select("*");
+
+
+    const rows =
+        error
+            ? []
+            : data || [];
+
+
+    const memberMap =
+        new Map();
+
+
+    rows.forEach(row => {
+
+        memberMap.set(
+            String(row.name)
+                .toUpperCase(),
+            row
+        );
+    });
+
+
+    let activeNow = 0;
+
+    const now = Date.now();
+
+
+    adminMembersList.innerHTML =
+        MEMBERS.map(name => {
+
+            const row =
+                memberMap.get(name);
+
+
+            const lastSeen =
+                row?.last_seen_at
+                    ? new Date(
+                        row.last_seen_at
+                    ).getTime()
+                    : 0;
+
+
+            const online =
+                lastSeen &&
+                (
+                    now -
+                    lastSeen
+                ) <
+                120000;
+
+
+            if (online) {
+                activeNow++;
+            }
+
+
+            return `
+
+                <article
+                    class="admin-member-card"
+                >
+
+                    <span
+                        class="live-dot"
+                        style="
+                            opacity:
+                            ${online ? 1 : .2};
+                        "
+                    ></span>
+
+
+                    <strong>
+
+                        ${escapeHTML(name)}
+
+                    </strong>
+
+
+                    <small>
+
+                        ${
+                            online
+                                ? "ACTIVE NOW"
+                                : (
+                                    row?.last_seen_at
+                                        ? "LAST SEEN " +
+                                          escapeHTML(
+                                              formatDate(
+                                                  row.last_seen_at
+                                              )
+                                          )
+                                        : "NO ACTIVITY YET"
+                                )
+                        }
+
+                    </small>
+
+                </article>
+
+            `;
+
+        }).join("");
+
+
+    memberCount.textContent =
+        MEMBERS.length;
+
+
+    onlineCount.textContent =
+        activeNow;
+}
+
+
+// ============================================================
+// 47. ADMIN ACTIVITY
+// ============================================================
+
+let adminActivityCache = [];
+
+
+async function loadAdminActivity() {
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from("activity_logs")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            )
+            .limit(500);
+
+
+    if (error) {
+
+        console.warn(error);
+
+
+        adminActivityCache = [];
+
+
+        activityCount.textContent =
+            "—";
+
+
+        adminActivityList.innerHTML = `
+
+            <div class="admin-notice">
+                activity_logs table unavailable.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    adminActivityCache =
+        data || [];
+
+
+    activityCount.textContent =
+        adminActivityCache.length;
+
+
+    renderAdminActivity();
+}
+
+
+function renderAdminActivity() {
+
+    const user =
+        activityUserFilter.value;
+
+    const type =
+        activityTypeFilter.value;
+
+
+    const filtered =
+        adminActivityCache.filter(
+            item => {
+
+                return (
+
+                    (
+                        user === "ALL" ||
+                        item.user_name ===
+                            user
+                    )
+
+                    &&
+
+                    (
+                        type === "ALL" ||
+                        item.action ===
+                            type
+                    )
+
+                );
+            }
+        );
+
+
+    if (!filtered.length) {
+
+        adminActivityList.innerHTML = `
+
+            <div class="admin-notice">
+                No matching activity.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    adminActivityList.innerHTML =
+        filtered.map(item => `
+
+            <article
+                class="admin-activity-card"
+            >
+
+                <span>
+                    ●
+                </span>
+
+
+                <div>
+
+                    <strong>
+
+                        ${escapeHTML(
+                            item.user_name
+                        )}
+
+                        —
+
+                        ${escapeHTML(
+                            item.action
+                        )}
+
+                    </strong>
+
+
+                    <small>
+
+                        ${escapeHTML(
+                            item.section ||
+                            "PRSN"
+                        )}
+
+                    </small>
+
+                </div>
+
+
+                <small>
+
+                    ${escapeHTML(
+                        formatDate(
+                            item.created_at
+                        )
+                    )}
+
+                </small>
+
+            </article>
+
+        `).join("");
+}
+
+
+activityUserFilter.addEventListener(
+    "change",
+    renderAdminActivity
+);
+
+
+activityTypeFilter.addEventListener(
+    "change",
+    renderAdminActivity
+);
+
+
+// ============================================================
+// 48. ADMIN DELETED MESSAGES
+// ============================================================
+
+async function loadAdminDeleted() {
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from(
+                "deleted_messages"
+            )
+            .select("*")
+            .order(
+                "deleted_at",
+                {
+                    ascending:
+                        false
+                }
+            )
+            .limit(300);
+
+
+    if (error) {
+
+        deletedCount.textContent =
+            "—";
+
+
+        adminDeletedList.innerHTML = `
+
+            <div class="admin-notice">
+
+                deleted_messages archive
+                unavailable.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    deletedCount.textContent =
+        data.length;
+
+
+    if (!data.length) {
+
+        adminDeletedList.innerHTML = `
+
+            <div class="admin-notice">
+                No deleted messages.
+            </div>
+
+        `;
+
+        return;
+    }
+
 
     const cards =
-        document.querySelectorAll(
-            "[data-tilt]"
+        await Promise.all(
+            data.map(
+                createDeletedAdminCard
+            )
         );
+
+
+    adminDeletedList.innerHTML =
+        cards.join("");
+}
+
+
+async function createDeletedAdminCard(
+    item
+) {
+
+    let preview = "";
+
+
+    if (
+        item.message_type ===
+            "image" &&
+        item.file_path
+    ) {
+
+        const url =
+            await signedURL(
+                "chat-images",
+                item.file_path
+            );
+
+
+        if (url) {
+
+            preview = `
+
+                <img
+                    src="${url}"
+                    loading="lazy"
+                    style="
+                        width:120px;
+                        height:80px;
+                        object-fit:cover;
+                        border:2px solid #111;
+                        border-radius:8px;
+                        margin-top:8px;
+                    "
+                    alt="Deleted image"
+                >
+
+            `;
+        }
+    }
+
+
+    else if (
+        item.message_type ===
+            "voice" &&
+        item.file_path
+    ) {
+
+        const url =
+            await signedURL(
+                "chat-voice",
+                item.file_path
+            );
+
+
+        if (url) {
+
+            preview = `
+
+                <audio
+                    controls
+                    preload="metadata"
+                    src="${url}"
+                    style="
+                        width:230px;
+                        max-width:100%;
+                        margin-top:8px;
+                    "
+                ></audio>
+
+            `;
+        }
+    }
+
+
+    else {
+
+        preview = `
+
+            <div
+                style="
+                    margin-top:6px;
+                    font-size:11px;
+                "
+            >
+
+                ${escapeHTML(
+                    item.message || ""
+                )}
+
+            </div>
+
+        `;
+    }
+
+
+    return `
+
+        <article
+            class="admin-deleted-card"
+            style="
+                display:block;
+            "
+        >
+
+            <strong>
+
+                ${escapeHTML(
+                    item.sender_name
+                )}
+
+            </strong>
+
+
+            <small>
+
+                DELETED BY
+                ${escapeHTML(
+                    item.deleted_by ||
+                    item.sender_name
+                )}
+
+                •
+
+                ${escapeHTML(
+                    formatDate(
+                        item.deleted_at
+                    )
+                )}
+
+            </small>
+
+            ${preview}
+
+        </article>
+
+    `;
+}
+
+
+// ============================================================
+// 49. ADMIN MEDIA
+// ============================================================
+
+async function loadAdminMedia() {
+
+    const [
+        galleryResult,
+        chatResult
+    ] =
+        await Promise.all([
+
+            db
+                .from(
+                    "gallery_photos"
+                )
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending:
+                            false
+                    }
+                )
+                .limit(30),
+
+            db
+                .from("messages")
+                .select("*")
+                .in(
+                    "message_type",
+                    [
+                        "image",
+                        "voice"
+                    ]
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending:
+                            false
+                    }
+                )
+                .limit(30)
+
+        ]);
+
+
+    const gallery =
+        galleryResult.data || [];
+
+    const chat =
+        chatResult.data || [];
+
+
+    const cards = [];
+
+
+    for (
+        const item
+        of gallery
+    ) {
+
+        const url =
+            await signedURL(
+                "prsn-gallery",
+                item.image_path
+            );
+
+
+        if (!url) continue;
+
+
+        cards.push(`
+
+            <article
+                class="gallery-photo-card"
+            >
+
+                <div
+                    class="gallery-image-wrap"
+                >
+
+                    <img
+                        src="${url}"
+                        loading="lazy"
+                        class="gallery-image"
+                        alt="Gallery media"
+                    >
+
+                </div>
+
+                <div class="gallery-info">
+
+                    <span
+                        class="gallery-uploader"
+                    >
+                        ${escapeHTML(
+                            item.uploader_name
+                        )}
+                    </span>
+
+                    <span
+                        class="gallery-date"
+                    >
+                        WALL
+                    </span>
+
+                </div>
+
+            </article>
+
+        `);
+    }
+
+
+    for (
+        const item
+        of chat
+    ) {
+
+        if (
+            item.message_type ===
+                "image"
+        ) {
+
+            const url =
+                await signedURL(
+                    "chat-images",
+                    item.file_path
+                );
+
+
+            if (!url) continue;
+
+
+            cards.push(`
+
+                <article
+                    class="gallery-photo-card"
+                >
+
+                    <div
+                        class="gallery-image-wrap"
+                    >
+
+                        <img
+                            src="${url}"
+                            loading="lazy"
+                            class="gallery-image"
+                            alt="Chat image"
+                        >
+
+                    </div>
+
+                    <div class="gallery-info">
+
+                        <span
+                            class="gallery-uploader"
+                        >
+                            ${escapeHTML(
+                                item.sender_name
+                            )}
+                        </span>
+
+                        <span
+                            class="gallery-date"
+                        >
+                            CHAT
+                        </span>
+
+                    </div>
+
+                </article>
+
+            `);
+
+        }
+
+        else {
+
+            const url =
+                await signedURL(
+                    "chat-voice",
+                    item.file_path
+                );
+
+
+            if (!url) continue;
+
+
+            cards.push(`
+
+                <article
+                    class="admin-media-card"
+                    style="padding:16px;"
+                >
+
+                    <strong>
+
+                        ${escapeHTML(
+                            item.sender_name
+                        )}
+
+                    </strong>
+
+                    <small
+                        style="
+                            display:block;
+                            margin-top:4px;
+                        "
+                    >
+                        VOICE MESSAGE
+                    </small>
+
+                    <audio
+                        controls
+                        preload="metadata"
+                        src="${url}"
+                        style="
+                            width:100%;
+                            margin-top:16px;
+                        "
+                    ></audio>
+
+                </article>
+
+            `);
+        }
+    }
+
+
+    adminMediaList.innerHTML =
+        cards.length
+            ? cards.join("")
+            : `
+
+                <div class="admin-notice">
+                    No media yet.
+                </div>
+
+            `;
+}
+
+
+// ============================================================
+// 50. ADMIN STUDY UPLOADS
+// ============================================================
+
+async function loadAdminStudy() {
+
+    const {
+        data,
+        error
+    } =
+        await db
+            .from("study_posts")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            )
+            .limit(100);
+
+
+    if (error) {
+
+        adminStudyCount.textContent =
+            "—";
+
+
+        adminStudyList.innerHTML = `
+
+            <div class="admin-notice">
+                study_posts table unavailable.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    adminStudyCount.textContent =
+        data.length;
+
+
+    if (!data.length) {
+
+        adminStudyList.innerHTML = `
+
+            <div class="admin-notice">
+                No Study Board posts yet.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const cards =
+        await Promise.all(
+            data.map(
+                createAdminStudyCard
+            )
+        );
+
+
+    adminStudyList.innerHTML =
+        cards.join("");
+}
+
+
+async function createAdminStudyCard(
+    post
+) {
+
+    let media = "";
+
+
+    if (
+        post.file_path &&
+        post.media_type ===
+            "image"
+    ) {
+
+        const url =
+            await signedURL(
+                "study-board",
+                post.file_path
+            );
+
+
+        if (url) {
+
+            media = `
+
+                <img
+                    src="${url}"
+                    loading="lazy"
+                    style="
+                        width:100%;
+                        aspect-ratio:16/10;
+                        object-fit:cover;
+                        border-bottom:
+                        2px solid #111;
+                    "
+                    alt="Study material"
+                >
+
+            `;
+        }
+    }
+
+
+    else if (
+        post.file_path &&
+        post.media_type ===
+            "video"
+    ) {
+
+        const url =
+            await signedURL(
+                "study-board",
+                post.file_path
+            );
+
+
+        if (url) {
+
+            media = `
+
+                <video
+                    controls
+                    preload="metadata"
+                    src="${url}"
+                    style="
+                        width:100%;
+                        aspect-ratio:16/10;
+                        object-fit:cover;
+                        border-bottom:
+                        2px solid #111;
+                    "
+                ></video>
+
+            `;
+        }
+    }
+
+
+    return `
+
+        <article
+            class="admin-study-card"
+            style="
+                overflow:hidden;
+            "
+        >
+
+            ${media}
+
+            <div
+                style="
+                    padding:15px;
+                "
+            >
+
+                <small>
+
+                    ${escapeHTML(
+                        post.subject
+                    )}
+
+                    •
+
+                    ${escapeHTML(
+                        post.topic
+                    )}
+
+                </small>
+
+
+                <strong
+                    style="
+                        display:block;
+                        margin-top:7px;
+                        font-size:16px;
+                    "
+                >
+
+                    ${escapeHTML(
+                        post.title
+                    )}
+
+                </strong>
+
+
+                <small
+                    style="
+                        display:block;
+                        margin-top:8px;
+                    "
+                >
+
+                    BY
+                    ${escapeHTML(
+                        post.uploader_name
+                    )}
+
+                </small>
+
+            </div>
+
+        </article>
+
+    `;
+}
+
+
+// ============================================================
+// 51. SCROLL REVEALS
+// ============================================================
+
+let revealObserver = null;
+
+
+function initScrollReveal() {
+
+    if (
+        !("IntersectionObserver"
+            in window)
+    ) {
+
+        document
+            .querySelectorAll(
+                ".reveal-section"
+            )
+            .forEach(item => {
+
+                item.classList.add(
+                    "is-visible"
+                );
+            });
+
+
+        return;
+    }
+
+
+    revealObserver =
+        new IntersectionObserver(
+            entries => {
+
+                entries.forEach(entry => {
+
+                    if (
+                        entry.isIntersecting
+                    ) {
+
+                        entry.target
+                            .classList
+                            .add(
+                                "is-visible"
+                            );
+
+
+                        // One reveal only =
+                        // less repeated animation work.
+
+                        revealObserver
+                            .unobserve(
+                                entry.target
+                            );
+                    }
+                });
+            },
+            {
+                threshold: 0.12,
+                rootMargin:
+                    "0px 0px -4% 0px"
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".reveal-section"
+        )
+        .forEach(item => {
+
+            revealObserver.observe(
+                item
+            );
+        });
+}
+
+
+function refreshReveals() {
+
+    document
+        .querySelectorAll(
+            ".screen.active .reveal-section"
+        )
+        .forEach(item => {
+
+            const rect =
+                item.getBoundingClientRect();
+
+
+            if (
+                rect.top <
+                window.innerHeight *
+                .92
+            ) {
+
+                item.classList.add(
+                    "is-visible"
+                );
+            }
+        });
+}
+
+
+// ============================================================
+// 52. SMOOTH FAKE 3D TILT
+// ============================================================
+
+function initTilt() {
+
+    if (
+        window.matchMedia(
+            "(hover: none)"
+        ).matches
+    ) {
+
+        return;
+    }
 
 
     const reducedMotion =
@@ -3457,152 +5294,121 @@ function initTiltCards() {
         ).matches;
 
 
-    cards.forEach(
-        card => {
+    if (reducedMotion) {
+        return;
+    }
 
-            card.addEventListener(
+
+    document
+        .querySelectorAll(
+            "[data-tilt]"
+        )
+        .forEach(element => {
+
+            let frame = null;
+
+
+            element.addEventListener(
                 "pointermove",
                 event => {
 
-                    const rect =
-                        card
-                            .getBoundingClientRect();
-
-
-                    const pointerX =
-                        event.clientX -
-                        rect.left;
-
-
-                    const pointerY =
-                        event.clientY -
-                        rect.top;
-
-
-                    const percentageX =
-                        pointerX /
-                        rect.width;
-
-
-                    const percentageY =
-                        pointerY /
-                        rect.height;
-
-
-                    card.style.setProperty(
-                        "--mx",
-                        `${percentageX * 100}%`
-                    );
-
-
-                    card.style.setProperty(
-                        "--my",
-                        `${percentageY * 100}%`
-                    );
-
-
-                    if (
-                        reducedMotion ||
-                        event.pointerType !==
-                            "mouse"
-                    ) {
-
-                        return;
-
+                    if (frame) {
+                        cancelAnimationFrame(
+                            frame
+                        );
                     }
 
 
-                    const rotateY =
-                        (
-                            percentageX -
-                            .5
-                        )
-                        * 5;
+                    frame =
+                        requestAnimationFrame(
+                            () => {
+
+                                const rect =
+                                    element
+                                        .getBoundingClientRect();
 
 
-                    const rotateX =
-                        -(
-                            percentageY -
-                            .5
-                        )
-                        * 5;
+                                const x =
+                                    (
+                                        event.clientX -
+                                        rect.left
+                                    ) /
+                                    rect.width;
 
 
-                    const lift =
-                        card.classList
-                            .contains(
-                                "experience-card"
-                            )
-                            ? -7
-                            : -3;
+                                const y =
+                                    (
+                                        event.clientY -
+                                        rect.top
+                                    ) /
+                                    rect.height;
 
 
-                    card.style.transform =
-                        `
-                            translateY(${lift}px)
-                            rotateX(${rotateX}deg)
-                            rotateY(${rotateY}deg)
-                        `;
+                                const rotateY =
+                                    (x - .5) * 7;
 
+
+                                const rotateX =
+                                    -(y - .5) * 7;
+
+
+                                element.style.transform =
+                                    `
+                                    perspective(900px)
+                                    rotateX(${rotateX}deg)
+                                    rotateY(${rotateY}deg)
+                                    translateY(-3px)
+                                    `;
+
+                            }
+                        );
                 }
             );
 
 
-            card.addEventListener(
+            element.addEventListener(
                 "pointerleave",
                 () => {
 
-                    card.style
+                    if (frame) {
+
+                        cancelAnimationFrame(
+                            frame
+                        );
+                    }
+
+
+                    element.style
                         .removeProperty(
                             "transform"
                         );
-
-
-                    card.style.setProperty(
-                        "--mx",
-                        "70%"
-                    );
-
-
-                    card.style.setProperty(
-                        "--my",
-                        "25%"
-                    );
-
                 }
             );
-
-        }
-    );
-
+        });
 }
 
 
 // ============================================================
-// MAGNETIC BUTTON EFFECT
+// 53. MAGNETIC BUTTONS
 // ============================================================
 
 function initMagneticButtons() {
 
     if (
         window.matchMedia(
-            "(pointer: coarse)"
+            "(hover: none)"
         ).matches
     ) {
 
         return;
-
     }
 
 
-    const buttons =
-        document.querySelectorAll(
-            ".luxury-btn, .experience-arrow, .gallery-upload-button"
-        );
-
-
-    buttons.forEach(
-        button => {
+    document
+        .querySelectorAll(
+            ".magnetic"
+        )
+        .forEach(button => {
 
             button.addEventListener(
                 "pointermove",
@@ -3615,26 +5421,25 @@ function initMagneticButtons() {
 
                     const x =
                         event.clientX -
-                        rect.left -
-                        rect.width /
-                        2;
+                        (
+                            rect.left +
+                            rect.width / 2
+                        );
 
 
                     const y =
                         event.clientY -
-                        rect.top -
-                        rect.height /
-                        2;
+                        (
+                            rect.top +
+                            rect.height / 2
+                        );
 
 
                     button.style.transform =
-                        `
-                            translate(
-                                ${x * .05}px,
-                                ${y * .05}px
-                            )
-                        `;
-
+                        `translate(
+                            ${x * .08}px,
+                            ${y * .08}px
+                        )`;
                 }
             );
 
@@ -3647,121 +5452,188 @@ function initMagneticButtons() {
                         .removeProperty(
                             "transform"
                         );
-
                 }
             );
+        });
+}
 
+
+// ============================================================
+// 54. CURSOR GLOW
+// ============================================================
+
+function initCursorGlow() {
+
+    if (
+        !cursorGlow ||
+        window.matchMedia(
+            "(hover: none)"
+        ).matches
+    ) {
+
+        return;
+    }
+
+
+    let mouseX =
+        window.innerWidth / 2;
+
+    let mouseY =
+        window.innerHeight / 2;
+
+    let currentX = mouseX;
+    let currentY = mouseY;
+
+
+    window.addEventListener(
+        "pointermove",
+        event => {
+
+            mouseX =
+                event.clientX;
+
+            mouseY =
+                event.clientY;
+        },
+        {
+            passive: true
         }
     );
 
+
+    function update() {
+
+        currentX +=
+            (
+                mouseX -
+                currentX
+            ) *
+            .12;
+
+
+        currentY +=
+            (
+                mouseY -
+                currentY
+            ) *
+            .12;
+
+
+        cursorGlow.style.left =
+            `${currentX}px`;
+
+
+        cursorGlow.style.top =
+            `${currentY}px`;
+
+
+        requestAnimationFrame(
+            update
+        );
+    }
+
+
+    update();
 }
 
 
 // ============================================================
-// INPUT VISUAL RESPONSE
+// 55. ESCAPE KEY
 // ============================================================
 
-function initInputEffects() {
+document.addEventListener(
+    "keydown",
+    event => {
 
-    document
-        .querySelectorAll(
-            ".input-shell input"
-        )
-        .forEach(
-            input => {
+        if (
+            event.key !== "Escape"
+        ) {
 
-                input.addEventListener(
-                    "input",
-                    () => {
-
-                        const shell =
-                            input.closest(
-                                ".input-shell"
-                            );
+            return;
+        }
 
 
-                        if (!shell) {
-                            return;
-                        }
+        if (
+            !studyUploadModal
+                .classList
+                .contains(
+                    "hidden"
+                )
+        ) {
 
-
-                        shell.classList.toggle(
-                            "has-value",
-                            input.value.length >
-                            0
-                        );
-
-                    }
+            studyUploadModal
+                .classList
+                .add(
+                    "hidden"
                 );
 
-            }
-        );
+            return;
+        }
 
-}
+
+        if (
+            !chatModal
+                .classList
+                .contains(
+                    "hidden"
+                )
+        ) {
+
+            closeChatModal();
+        }
+    }
+);
 
 
 // ============================================================
-// SUPABASE TEST
+// 56. SUPABASE CONNECTION TEST
 // ============================================================
 
-async function testSupabaseConnection() {
+async function testSupabase() {
 
     const {
-        data,
         error
     } =
-        await supabaseClient
-
-            .from(
-                "members"
-            )
-
-            .select(
-                "name"
-            );
+        await db
+            .from("members")
+            .select("name")
+            .limit(1);
 
 
     if (error) {
 
-        console.error(
-            "PRSN SUPABASE CONNECTION FAILED:",
-            error
+        console.warn(
+            "PRSN connection:",
+            error.message
         );
-
-        return;
 
     }
 
+    else {
 
-    console.log(
-        "✦ PRSN PRIVATE NETWORK CONNECTED",
-        data
-    );
-
+        console.log(
+            "✓ PRSN connected to Supabase"
+        );
+    }
 }
 
 
 // ============================================================
-// INITIALIZE
+// 57. INITIALIZE
 // ============================================================
 
 function initializePRSN() {
 
-    initCursorGlow();
+    initScrollReveal();
 
-    initTiltCards();
+    initTilt();
 
     initMagneticButtons();
 
-    initInputEffects();
+    initCursorGlow();
 
-    testSupabaseConnection();
-
+    testSupabase();
 }
 
-
-// ============================================================
-// START
-// ============================================================
 
 initializePRSN();
