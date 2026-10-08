@@ -5637,3 +5637,63 @@ function initializePRSN() {
 
 
 initializePRSN();
+
+/* PRSN — MOBILE KEYBOARD FIX */
+
+const prsnMessageInput =
+    document.getElementById("messageInput");
+
+const prsnMessages =
+    document.getElementById("messages");
+
+function keepChatInputVisible() {
+    if (!prsnMessageInput) return;
+
+    if (
+        window.visualViewport &&
+        window.innerWidth <= 760
+    ) {
+        const viewport =
+            window.visualViewport;
+
+        const chat =
+            document.getElementById("chatScreen");
+
+        if (
+            chat &&
+            !chat.classList.contains("hidden")
+        ) {
+            chat.style.height =
+                `${viewport.height}px`;
+
+            chat.style.top =
+                `${viewport.offsetTop}px`;
+        }
+    }
+}
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "resize",
+        keepChatInputVisible
+    );
+
+    window.visualViewport.addEventListener(
+        "scroll",
+        keepChatInputVisible
+    );
+}
+
+prsnMessageInput?.addEventListener(
+    "focus",
+    () => {
+        setTimeout(() => {
+            keepChatInputVisible();
+
+            if (prsnMessages) {
+                prsnMessages.scrollTop =
+                    prsnMessages.scrollHeight;
+            }
+        }, 150);
+    }
+);
