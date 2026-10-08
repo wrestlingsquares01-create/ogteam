@@ -8175,3 +8175,420 @@ video {
             none !important;
     }
 }
+/* ==========================================================
+   PRSN — MOBILE RESPONSIVE FIX V1
+   Fix: Text overflow, layout, chat input, keyboard, scrolling
+========================================================== */
+
+@media (max-width: 760px) {
+
+    /* BASE */
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    .screen,
+    .full-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .screen {
+        height: 100dvh;
+        overflow-x: clip;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+    }
+
+    /* INTRO */
+
+    .intro-screen {
+        height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .intro-main {
+        height: auto;
+        min-height: calc(100dvh - 115px);
+        overflow: visible;
+        padding: 20px 0 65px;
+        gap: 24px;
+    }
+
+    .intro-copy {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .intro-copy h1 {
+        font-size: clamp(43px, 13.5vw, 74px);
+        line-height: 0.94;
+        letter-spacing: -3px;
+        overflow-wrap: anywhere;
+    }
+
+    .intro-tagline {
+        white-space: normal;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .crew-stage {
+        width: 100%;
+        min-height: 270px;
+        flex-shrink: 0;
+    }
+
+    .crew-card {
+        box-shadow: 3px 3px 0 var(--black);
+    }
+
+    .intro-ticker {
+        position: relative;
+        margin-top: 10px;
+    }
+
+    /* LOGIN */
+
+    .login-layout,
+    .admin-login-layout {
+        min-height: 100%;
+        height: auto;
+        padding-top: 85px;
+        padding-bottom: 60px;
+    }
+
+    .login-copy h1,
+    .admin-login-copy h1 {
+        font-size: clamp(38px, 12vw, 60px);
+        line-height: 0.95;
+        letter-spacing: -2px;
+        overflow-wrap: anywhere;
+    }
+
+    .login-card,
+    .admin-login-card {
+        max-width: 100%;
+    }
+
+    /* DASHBOARD */
+
+    .dashboard-main {
+        width: 90%;
+        max-width: 100%;
+    }
+
+    .dashboard-hero h1 {
+        font-size: clamp(44px, 12vw, 70px);
+        line-height: 0.98;
+        letter-spacing: -3px;
+        overflow-wrap: anywhere;
+    }
+
+    .section-heading h2 {
+        font-size: clamp(28px, 8vw, 43px);
+        line-height: 1.08;
+        letter-spacing: -1.5px;
+    }
+
+    .space-card {
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .space-copy h3 {
+        font-size: clamp(37px, 10vw, 53px);
+        line-height: 0.99;
+        letter-spacing: -2px;
+        overflow-wrap: anywhere;
+    }
+
+    .space-copy p,
+    .dashboard-hero p {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .crew-row {
+        min-width: 0;
+    }
+
+    .crew-row strong {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* ===========================================
+       COMMUNITY CHAT — IMPORTANT FIX
+    =========================================== */
+
+    #chatScreen {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    #chatScreen .panel-header {
+        height: 60px;
+        min-height: 60px;
+        flex: 0 0 60px;
+        padding: 0 12px;
+    }
+
+    #chatScreen .chat-layout {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        height: auto;
+        overflow: hidden;
+    }
+
+    #chatScreen .chat-sidebar {
+        display: none;
+    }
+
+    #chatScreen .chat-main {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    #chatScreen .chat-intro {
+        flex: 0 0 auto;
+        padding: 10px 13px;
+    }
+
+    #chatScreen .chat-intro h2 {
+        font-size: 18px;
+        line-height: 1.15;
+    }
+
+    #chatScreen .chat-intro p {
+        font-size: 10px;
+    }
+
+    /* Messages take remaining available space */
+
+    #messages {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: 12px 10px 18px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .message {
+        max-width: 88%;
+        flex-shrink: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .message-text {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .message-image {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .voice-message {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .voice-audio {
+        width: min(190px, 54vw);
+        max-width: 100%;
+    }
+
+    /* Chat composer always stays at bottom */
+
+    #chatScreen .chat-composer {
+        position: relative;
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: 0;
+        margin-top: auto;
+        padding: 8px 10px;
+        padding-bottom: max(
+            10px,
+            env(safe-area-inset-bottom)
+        );
+        background: var(--cream);
+        z-index: 10;
+    }
+
+    #chatScreen .composer-shell {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px;
+        border-radius: 14px;
+    }
+
+    #messageInput {
+        flex: 1 1 auto;
+        width: 0;
+        min-width: 0;
+        height: 40px;
+        font-size: 16px;
+        padding: 0 7px;
+    }
+
+    #chatScreen .composer-icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
+    }
+
+    #sendMessage {
+        flex: 0 0 auto;
+        height: 38px;
+        padding: 0 10px;
+        gap: 5px;
+        font-size: 9px;
+    }
+
+    #voiceStatus {
+        flex: 0 0 auto;
+        min-height: 42px;
+    }
+
+    /* ===========================================
+       GALLERY + STUDY BOARD
+    =========================================== */
+
+    #galleryScreen,
+    #studyScreen {
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+    }
+
+    .gallery-content,
+    .study-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .gallery-hero h1,
+    .study-hero h1 {
+        font-size: clamp(38px, 10.5vw, 60px);
+        letter-spacing: -2.5px;
+        line-height: 0.98;
+        overflow-wrap: anywhere;
+    }
+
+    .gallery-grid,
+    .study-posts-grid {
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gallery-photo-card,
+    .study-post-card {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .study-post-title {
+        overflow-wrap: anywhere;
+    }
+
+    .study-toolbar {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .subject-tabs {
+        max-width: 100%;
+    }
+
+    /* MODALS */
+
+    .modal {
+        padding: 15px;
+    }
+
+    .access-card,
+    .study-upload-card {
+        width: 100%;
+        max-width: 100%;
+        max-height: 90dvh;
+        overflow-y: auto;
+    }
+
+    /* Keep text readable */
+
+    input,
+    textarea,
+    select {
+        max-width: 100%;
+    }
+}
+
+/* Extra-small phones */
+
+@media (max-width: 380px) {
+
+    .intro-copy h1 {
+        font-size: 43px;
+    }
+
+    .crew-card {
+        width: 85px;
+        min-height: 112px;
+    }
+
+    .space-copy h3 {
+        font-size: 36px;
+    }
+
+    #chatScreen .chat-intro p {
+        display: none;
+    }
+
+    #sendMessage {
+        font-size: 0;
+        padding: 0 10px;
+    }
+
+    #sendMessage span {
+        font-size: 17px;
+    }
+}
