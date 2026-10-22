@@ -49,6 +49,11 @@ const ADMIN_PASSWORD = "BACHYO_ADMIN";
 const MAX_CHAT_IMAGE_SIZE =
     5 * 1024 * 1024;
 
+const MAX_CHAT_VIDEO_SIZE =
+    25 * 1024 * 1024;
+
+const MAX_CHAT_BATCH_FILES = 10;
+
 const MAX_VOICE_SIZE =
     10 * 1024 * 1024;
 
@@ -177,7 +182,8 @@ const messageInput =
 const sendMessageBtn =
     document.getElementById("sendMessage");
 
-const photoInput =
+const mediaInput =
+    document.getElementById("mediaInput") ||
     document.getElementById("photoInput");
 
 
@@ -1251,6 +1257,22 @@ async function createMessageElement(
     }
 
 
+    // VIDEO — uses private chat-videos storage bucket
+    else if (
+        message.message_type === "video" &&
+        message.file_path
+    ) {
+        const url = await signedURL(
+            "chat-videos", message.file_path
+        );
+        content = url ? `
+            <video class="message-video" controls playsinline
+                   preload="metadata" src="${escapeHTML(url)}"
+                   style="width:min(100%,350px);max-width:100%;border-radius:12px;display:block;">
+            </video>` : `
+            <div class="message-text">VIDEO UNAVAILABLE</div>`;
+    }
+
     // VOICE
 
     else if (
@@ -1430,6 +1452,14 @@ async function createMessageElement(
         );
     }
 
+
+    // Prevent background music from interfering with chat videos.
+    const video = element.querySelector(".message-video");
+    if (video) {
+        video.addEventListener("play", pauseMusicForVoice);
+        video.addEventListener("pause", resumeMusicAfterVoice);
+        video.addEventListener("ended", resumeMusicAfterVoice);
+    }
 
     // DELETE
 
@@ -1639,152 +1669,107 @@ messageInput.addEventListener(
 
 
 // ============================================================
-// 20. CHAT IMAGE
+// 20. CHAT MEDIA — MULTIPLE PHOTOS + VIDEOS
 // ============================================================
 
-photoInput.addEventListener(
-    "change",
-    async event => {
+let chatMediaUploading = false;
 
-        const file =
-            event.target.files?.[0];
+if (mediaInput) {
+    mediaInput.accept = "image/*,video/mp4,video/webm,video/quicktime";
+    mediaInput.multiple = true;
 
-
-        if (!file) return;
-
-
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            alert(
-                "Image file select kar."
-            );
-
-            photoInput.value = "";
-
+    mediaInput.addEventListener("change", async (event) => {
+        const files = Array.from(event.target.files || []);
+        // Clear the picker immediately, allowing the same files next time.
+        mediaInput.value = "";
+        if (!files.length || !currentUser) return;
+        if (chatMediaUploading) {
+            alert("Pehle current uploads complete hone do.");
+            return;
+        }
+        if (files.length > MAX_CHAT_BATCH_FILES) {
+            alert(`Ek baar mein maximum ${MAX_CHAT_BATCH_FILES} files select karo.`);
             return;
         }
 
-
-        if (
-            file.size >
-            MAX_CHAT_IMAGE_SIZE
-        ) {
-
-            alert(
-                "Photo 5MB se chhoti honi chahiye."
-            );
-
-            photoInput.value = "";
-
-            return;
+        // Use one message per file: compatible with existing messages table,
+        // realtime events, single-message deletion and admin archives.
+        const failures = [];
+        const sender = currentUser;
+        chatMediaUploading = true;
+        mediaInput.disabled = true;
+        const trigger = document.querySelector('label[for="mediaInput"]');
+        if (trigger) {
+            trigger.style.opacity = "0.5";
+            trigger.title = "Uploading media...";
         }
-
 
         try {
+            for (const file of files) {
+                const isImage = file.type.startsWith("image/");
+                const isVideo = [
+                    "video/mp4", "video/webm", "video/quicktime"
+                ].includes(file.type);
+                const limit = isImage ? MAX_CHAT_IMAGE_SIZE : MAX_CHAT_VIDEO_SIZE;
 
-            const extension =
-                (
-                    file.name
-                        .split(".")
-                        .pop() ||
-                    "jpg"
-                )
-                    .toLowerCase();
+                if ((!isImage && !isVideo) || !file.size || file.size > limit) {
+                    failures.push(`${file.name}: invalid type or over ${Math.round(limit / 1048576)}MB`);
+                    continue;
+                }
 
+                const bucket = isImage ? "chat-images" : "chat-videos";
+                const extension = isImage
+                    ? ({"image/jpeg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif", "image/heic":"heic", "image/heif":"heif"}[file.type] || "jpg")
+                    : ({"video/mp4":"mp4", "video/webm":"webm", "video/quicktime":"mov"}[file.type]);
+                const path = `chat/${randomID()}.${extension}`;
 
-            const path =
-                "chat/" +
-                randomID() +
-                "." +
-                extension;
+                try {
+                    const { error: uploadError } = await db.storage
+                        .from(bucket)
+                        .upload(path, file, {
+                            contentType: file.type,
+                            upsert: false
+                        });
+                    if (uploadError) throw uploadError;
 
+                    const { error: insertError } = await db
+                        .from("messages")
+                        .insert({
+                            sender_name: sender,
+                            message: isImage ? "Photo" : "Video",
+                            message_type: isImage ? "image" : "video",
+                            file_path: path
+                        });
+                    if (insertError) {
+                        // Cleanup only if message creation failed.
+                        await db.storage.from(bucket).remove([path]);
+                        throw insertError;
+                    }
 
-            const {
-                error:
-                    uploadError
-            } =
-                await db
-                    .storage
-                    .from(
-                        "chat-images"
-                    )
-                    .upload(
-                        path,
-                        file,
-                        {
-                            contentType:
-                                file.type,
-
-                            upsert:
-                                false
-                        }
+                    // Realtime should render it for everyone.
+                    await logActivity(
+                        isImage ? "SENT_PHOTO" : "SENT_VIDEO",
+                        "COMMUNITY_CHAT"
                     );
-
-
-            if (uploadError) {
-                throw uploadError;
+                } catch (error) {
+                    console.error("PRSN media upload:", file.name, error);
+                    failures.push(`${file.name}: ${error.message || "upload failed"}`);
+                }
             }
-
-
-            const {
-                error:
-                    insertError
-            } =
-                await db
-                    .from("messages")
-                    .insert({
-                        sender_name:
-                            currentUser,
-
-                        message:
-                            "Photo",
-
-                        message_type:
-                            "image",
-
-                        file_path:
-                            path
-                    });
-
-
-            if (insertError) {
-
-                await db
-                    .storage
-                    .from(
-                        "chat-images"
-                    )
-                    .remove([path]);
-
-
-                throw insertError;
+        } finally {
+            chatMediaUploading = false;
+            mediaInput.disabled = false;
+            if (trigger) {
+                trigger.style.opacity = "";
+                trigger.title = "Send photos and videos";
             }
-
-
-            await logActivity(
-                "SENT_PHOTO",
-                "COMMUNITY_CHAT"
-            );
-
         }
 
-        catch (error) {
-
-            console.error(error);
-
-            alert(
-                "Photo upload nahi hui."
-            );
+        if (failures.length) {
+            alert(`${files.length - failures.length}/${files.length} files sent. Failed:\n${failures.join("\n")}`);
         }
-
-
-        photoInput.value = "";
-    }
-);
+    });
+}
 
 
 // ============================================================
@@ -4607,6 +4592,13 @@ async function createDeletedAdminCard(
     }
 
 
+    else if (item.message_type === "video" && item.file_path) {
+        const url = await signedURL("chat-videos", item.file_path);
+        if (url) preview = `<video controls playsinline preload="metadata"
+            src="${escapeHTML(url)}" style="width:230px;max-width:100%;margin-top:8px;"></video>`;
+    }
+
+
     else if (
         item.message_type ===
             "voice" &&
@@ -4738,7 +4730,8 @@ async function loadAdminMedia() {
                     "message_type",
                     [
                         "image",
-                        "voice"
+                        "voice",
+                        "video"
                     ]
                 )
                 .order(
@@ -4882,6 +4875,20 @@ async function loadAdminMedia() {
 
             `);
 
+        }
+
+        else if (item.message_type === "video") {
+            const url = await signedURL("chat-videos", item.file_path);
+            if (!url) continue;
+            cards.push(`
+                <article class="admin-media-card" style="padding:16px;">
+                    <strong>${escapeHTML(item.sender_name)}</strong>
+                    <small style="display:block;margin-top:4px;">CHAT VIDEO</small>
+                    <video controls playsinline preload="metadata"
+                        src="${escapeHTML(url)}"
+                        style="width:100%;max-width:100%;margin-top:12px;border-radius:8px;"></video>
+                </article>
+            `);
         }
 
         else {
